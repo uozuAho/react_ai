@@ -7,7 +7,7 @@ it('renders the correct text when no enthusiasm level is given', () => {
   expect(hello.find(".greeting").text()).toEqual('Hello Daniel!')
 });
 
-it('resnders the correct text with an explicit enthusiasm of 1', () => {
+it('renders the correct text with an explicit enthusiasm of 1', () => {
   const hello = enzyme.shallow(<Hello name='Daniel' enthusiasmLevel={1}/>);
   expect(hello.find(".greeting").text()).toEqual('Hello Daniel!')
 });
@@ -17,15 +17,26 @@ it('renders the correct text with an explicit enthusiasm level of 5', () => {
   expect(hello.find(".greeting").text()).toEqual('Hello Daniel!!!!!');
 });
 
-// this test fails cos enthusiasmLevel = 0 is falsey, which causes it to be set to 1
-// it('throws when the enthusiasm level is 0', () => {
-//   expect(() => {
-//     enzyme.shallow(<Hello name='Daniel' enthusiasmLevel={0} />);
-//   }).toThrow();
-// });
-
 it('throws when the enthusiasm level is negative', () => {
   expect(() => {
     enzyme.shallow(<Hello name='Daniel' enthusiasmLevel={-1} />);
   }).toThrow();
+});
+
+it('should call increment when + is clicked', () => {
+  const increment = jest.fn();
+  const hello = enzyme.shallow(<Hello name='Daniel' enthusiasmLevel={1} onIncrement={increment} />);
+
+  hello.find('#btnInc').simulate('click');
+
+  expect(increment.mock.calls.length).toBe(1);
+});
+
+it('should call decrement when - is clicked', () => {
+  const decrement = jest.fn();
+  const hello = enzyme.shallow(<Hello name='Daniel' enthusiasmLevel={1} onDecrement={decrement} />);
+
+  hello.find('#btnDec').simulate('click');
+
+  expect(decrement.mock.calls.length).toBe(1);
 });
