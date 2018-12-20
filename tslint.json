@@ -1,5 +1,11 @@
 {
   "extends": ["tslint:recommended", "tslint-react", "tslint-config-prettier"],
+  "rules": {
+    "ordered-imports": false,
+    "variable-name": [true, "allow-leading-underscore"],
+    "member-ordering": false,
+    "max-classes-per-file": false
+  },
   "linterOptions": {
     "exclude": [
       "config/**/*.js",
