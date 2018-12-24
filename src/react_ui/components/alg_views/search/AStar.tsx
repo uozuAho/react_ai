@@ -15,9 +15,23 @@ export class AStar extends React.Component {
 
     public render() {
         return (
-            <canvas id="astar_canvas" height="500" width="500"/>
+            <div>
+                <h1>A* search</h1>
+                <div id="div_buttons">
+                    <button onClick={this.go}>go</button>
+                    <button onClick={this.stop}>stop</button>
+                    <button onClick={this.step}>step</button>
+                    <button onClick={this.reset}>reset</button>
+                </div>
+                <canvas id="astar_canvas" height="500" width="500"/>
+            </div>
         );
     }
+
+    private go = () =>    { this.searchVis.go(); }
+    private stop = () =>  { this.searchVis.stop(); }
+    private step = () =>  { this.searchVis.step(); }
+    private reset = () => { this.searchVis.reset(); }
 }
 
 function createSolver(problem: ISearchProblem<Point2d, Point2d>, goal: Point2d) {
