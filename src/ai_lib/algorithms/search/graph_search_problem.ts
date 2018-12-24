@@ -1,8 +1,8 @@
-import { SearchProblem, SearchNode } from './search_problem';
-import { Hashable } from '../../structures/hash_set';
+import { ISearchProblem } from './search_problem';
+import { IHashable } from '../../structures/hash_set';
 import { GraphT } from '../../structures/graphT';
 
-export class GraphSearchProblem<TNode extends Hashable> implements SearchProblem<TNode, TNode> {
+export class GraphSearchProblem<TNode extends IHashable> implements ISearchProblem<TNode, TNode> {
 
     public readonly initial_state: TNode;
     public readonly graph: GraphT<TNode>

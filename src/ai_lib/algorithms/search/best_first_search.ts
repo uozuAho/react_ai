@@ -1,29 +1,29 @@
-import { Frontier, GenericSearch } from './generic_search';
+import { IFrontier, GenericSearch } from './generic_search';
 import { PriorityQueue } from '../../structures/priority_queue';
-import { Hashable, UniqueHashSet } from '../../structures/hash_set';
-import { SearchNode, SearchProblem } from './search_problem';
+import { IHashable, UniqueHashSet } from '../../structures/hash_set';
+import { SearchNode, ISearchProblem } from './search_problem';
 
 /** Best first - searches the frontier in the given priority order */
-export abstract class BestFirstSearch<TState extends Hashable, TAction> extends GenericSearch<TState, TAction> {
+export abstract class BestFirstSearch<TState extends IHashable, TAction> extends GenericSearch<TState, TAction> {
 
-    constructor(problem: SearchProblem<TState, TAction>, path_cost_limit: number = Number.MAX_VALUE) {
+    constructor(problem: ISearchProblem<TState, TAction>, path_cost_limit: number = Number.MAX_VALUE) {
         super(problem, path_cost_limit);
         this._frontier = new PriorityFrontier<SearchNode<TState, TAction>>(
             (a, b) => this.compareStates(a, b));
         this._frontier.push(new SearchNode(problem.initial_state));
     }
 
-    abstract _priorityFunc(node: SearchNode<TState, TAction>): number;
+    protected abstract _priorityFunc(node: SearchNode<TState, TAction>): number;
 
     // comparer for the priority queue
     private compareStates(a: SearchNode<TState, TAction>, b: SearchNode<TState, TAction>) : -1 | 0 | 1 {
-        let h_a = this._priorityFunc(a);
-        let h_b = this._priorityFunc(b);
+        const h_a = this._priorityFunc(a);
+        const h_b = this._priorityFunc(b);
         return h_a < h_b ? -1 : h_a > h_b ? 1 : 0;
     }
 }
 
-class PriorityFrontier<T extends Hashable> implements Frontier<T> {
+class PriorityFrontier<T extends IHashable> implements IFrontier<T> {
     private readonly _queue: PriorityQueue<T>;
     private readonly _set: UniqueHashSet<T>;
 
@@ -32,26 +32,26 @@ class PriorityFrontier<T extends Hashable> implements Frontier<T> {
         this._set = new UniqueHashSet();
     }
 
-    push(search_node: T) {
+    public push(search_node: T) {
         this._queue.push(search_node);
         this._set.add(search_node);
     }
 
-    pop() : T {
-        let item = this._queue.pop();
+    public pop() : T {
+        const item = this._queue.pop();
         this._set.remove(item);
         return item;
     }
 
-    contains(node: T) : boolean {
+    public contains(node: T) : boolean {
         return this._set.contains(node)
     }
 
-    getStates() : T[] {
+    public getStates() : T[] {
         return this._set.items();
     }
 
-    isEmpty() : boolean {
+    public isEmpty() : boolean {
         return this._set.size() === 0;
     }
 }

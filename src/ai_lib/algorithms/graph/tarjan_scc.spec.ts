@@ -1,14 +1,14 @@
 import { DiGraph } from '../../structures/graph';
 import { TarjanSCC } from './tarjan_scc';
 
-describe('TarjanSCC', function() {
-    it('disconnected 2 graph', function() {
+describe('TarjanSCC', () => {
+    it('disconnected 2 graph', () => {
         const g = new DiGraph(2);
         const scc = new TarjanSCC(g);
         expect(scc.count()).toBe(2);
     });
 
-    it('connected 3 graph', function() {
+    it('connected 3 graph', () => {
         const g = new DiGraph(3);
         g.add_edge(0, 1);
         g.add_edge(1, 2);
@@ -16,7 +16,7 @@ describe('TarjanSCC', function() {
         expect(scc.count()).toBe(3);
     });
 
-    it('strongly connected 3 graph', function() {
+    it('strongly connected 3 graph', () => {
         const g = new DiGraph(3);
         g.add_edge(0, 1);
         g.add_edge(1, 2);

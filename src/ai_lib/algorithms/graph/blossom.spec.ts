@@ -1,7 +1,7 @@
 import { Blossom } from './blossom';
 
-describe('Blossom2', function() {
-    it('simple', function() {
+describe('Blossom2', () => {
+    it('simple', () => {
         const edges = [
             [0, 1, 6],  // 0 ----6----> 1
             [0, 2, 10]  // 0 ---10----> 2

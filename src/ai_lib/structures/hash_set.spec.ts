@@ -1,36 +1,36 @@
-import { Hashable, UniqueHashSet } from './hash_set';
+import { IHashable, UniqueHashSet } from './hash_set';
 
-class TestHashable<T> implements Hashable {
+class TestHashable<T> implements IHashable {
     private thing: T;
 
     constructor(thing: T) {
         this.thing = thing;
     }
 
-    hash(): string {
+    public hash(): string {
         return '' + this.thing;
     }
 }
 
-describe('UniqueHashSet', function() {
+describe('UniqueHashSet', () => {
     let set = new UniqueHashSet();
 
-    beforeEach(function() {
+    beforeEach(() => {
         set = new UniqueHashSet();
     });
 
-    it('should contain 1 but not 2', function() {
+    it('should contain 1 but not 2', () => {
         set.add(new TestHashable<number>(1));
         expect(set.contains(new TestHashable<number>(1))).toBe(true);
         expect(set.contains(new TestHashable<number>(2))).toBe(false);
     });
 
-    it('should throw when attempting to add an existing hash', function() {
+    it('should throw when attempting to add an existing hash', () => {
         set.add(new TestHashable<number>(1));
-        expect(function() {set.add(new TestHashable<number>(1)); }).toThrowError();
+        expect(() => {set.add(new TestHashable<number>(1)); }).toThrowError();
     });
 
-    it('should remove 1 but not 2', function() {
+    it('should remove 1 but not 2', () => {
         set.add(new TestHashable<number>(1));
         set.add(new TestHashable<number>(2));
         set.remove(new TestHashable<number>(1));
@@ -38,13 +38,13 @@ describe('UniqueHashSet', function() {
         expect(set.contains(new TestHashable<number>(2))).toBe(true);
     });
 
-    it('should have correct size', function() {
+    it('should have correct size', () => {
         expect(set.size()).toBe(0);
         set.add(new TestHashable<number>(1));
         expect(set.size()).toBe(1);
     });
 
-    it('should return all values', function() {
+    it('should return all values', () => {
         const hashable1 = new TestHashable(1);
         const hashable2 = new TestHashable(2);
 

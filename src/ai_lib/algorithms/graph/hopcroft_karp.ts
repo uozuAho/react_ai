@@ -83,7 +83,7 @@ export class HopcroftKarp {
 
             // to be able to iterate over each adjacency list, keeping track of which
             // vertex in each adjacency list needs to be explored next
-            const adj: ArrayIterator<number>[] = [];
+            const adj: Array<ArrayIterator<number>> = [];
             for (let v = 0; v < this.V; v++) {
                 adj[v] = new ArrayIterator(G.adjacent(v).map(e => e.other(v)));
             }
@@ -115,8 +115,8 @@ export class HopcroftKarp {
                         // augmenting path found: update the matching
                         if (!this.isMatched(w)) {
                             while (path.length > 0) {
-                                const x = path.pop();
-                                const y = path.pop();
+                                const x = path.pop() as number;
+                                const y = path.pop() as number;
                                 this._mate[x] = y;
                                 this._mate[y] = x;
                             }

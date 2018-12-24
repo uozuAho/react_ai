@@ -1,17 +1,17 @@
 import { DepthFirstSearch } from './depth_first_search';
-import { SearchProblem } from './search_problem';
-import { SearchAlgorithm } from './search_algorithm';
-import { Hashable } from '../../structures/hash_set';
+import { ISearchProblem } from './search_problem';
+import { ISearchAlgorithm } from './search_algorithm';
+import { IHashable } from '../../structures/hash_set';
 
-export class IterativeDeepeningSearch<TState extends Hashable, TAction> implements SearchAlgorithm<TState, TAction> {
+export class IterativeDeepeningSearch<TState extends IHashable, TAction> implements ISearchAlgorithm<TState, TAction> {
 
     public isFinished: boolean;
 
-    private _problem: SearchProblem<TState, TAction>;
+    private _problem: ISearchProblem<TState, TAction>;
     private _dfsSolver: DepthFirstSearch<TState, TAction>;
     private _current_limit: number;
 
-    constructor(problem: SearchProblem<TState, TAction>) {
+    constructor(problem: ISearchProblem<TState, TAction>) {
         this._problem = problem;
         this._current_limit = 1;
         this._dfsSolver = this.createDfsSolver();

@@ -1,33 +1,30 @@
 import { DepthFirstSearch } from './depth_first_search';
-import { SearchProblem, SearchNode } from './search_problem';
-import { Hashable } from '../../structures/hash_set';
+import { ISearchProblem } from './search_problem';
+import { IHashable } from '../../structures/hash_set';
 import * as tmoq from 'typemoq';
 
-class StateMock implements Hashable {
+class StateMock implements IHashable {
     public data: string;
     constructor(data: string) { this.data = data; }
-    hash() {return this.data};
+    public hash() {return this.data};
 }
 
 class ActionMock {}
 
-describe('DepthFirstSearch', function() {
-    let initial_state = new StateMock("initial state");
-    let problem = tmoq.Mock.ofType<SearchProblem<StateMock, ActionMock>>();
+describe('DepthFirstSearch', () => {
+    const initial_state = new StateMock("initial state");
+    let problem = tmoq.Mock.ofType<ISearchProblem<StateMock, ActionMock>>();
     let dfs : DepthFirstSearch<StateMock, ActionMock>;
 
-    beforeEach(function() {
-    });
-
-    var initialiseOneStateProblem = function() {
-        problem = tmoq.Mock.ofType<SearchProblem<StateMock, ActionMock>>();
+    const initialiseOneStateProblem = () => {
+        problem = tmoq.Mock.ofType<ISearchProblem<StateMock, ActionMock>>();
         problem.setup(p => p.initial_state).returns(() => initial_state);
         problem.setup(p => p.getActions(tmoq.It.isAny())).returns(() => []);
         problem.setup(p => p.isGoal(tmoq.It.isAny())).returns(() => false);
         dfs = new DepthFirstSearch(problem.object);
     }
 
-    it('initial state', function() {
+    it('initial state', () => {
         initialiseOneStateProblem();
         expect(dfs.getExplored()).toEqual([]);
         expect(dfs.isFinished).toBe(false);
@@ -35,18 +32,18 @@ describe('DepthFirstSearch', function() {
         expect(dfs.getFrontier()[0].data).toBe("initial state");
     });
 
-    it('solve one state problem should finish', function() {
+    it('solve one state problem should finish', () => {
         initialiseOneStateProblem();
         dfs.solve();
         expect(dfs.isFinished).toBe(true);
     });
 
-    it('first step', function() {
-        let action1 = new ActionMock();
-        let action2 = new ActionMock();
-        let state1 = new StateMock("state 1");
-        let state2 = new StateMock("state 2");
-        problem = tmoq.Mock.ofType<SearchProblem<StateMock, ActionMock>>();
+    it('first step', () => {
+        const action1 = new ActionMock();
+        const action2 = new ActionMock();
+        const state1 = new StateMock("state 1");
+        const state2 = new StateMock("state 2");
+        problem = tmoq.Mock.ofType<ISearchProblem<StateMock, ActionMock>>();
         problem.setup(p => p.initial_state).returns(() => initial_state);
         problem.setup(p => p.getActions(initial_state)).returns(() => [action1, action2]);
         problem.setup(p => p.doAction(initial_state, action1)).returns(() => state1);
@@ -61,12 +58,12 @@ describe('DepthFirstSearch', function() {
         expect(dfs.isFinished).toBe(false);
     });
 
-    it('solvable should solve and return correct solution', function() {
-        let action1 = new ActionMock();
-        let action2 = new ActionMock();
-        let state1 = new StateMock("state 1");
-        let state2 = new StateMock("state 2");
-        problem = tmoq.Mock.ofType<SearchProblem<StateMock, ActionMock>>();
+    it('solvable should solve and return correct solution', () => {
+        const action1 = new ActionMock();
+        const action2 = new ActionMock();
+        const state1 = new StateMock("state 1");
+        const state2 = new StateMock("state 2");
+        problem = tmoq.Mock.ofType<ISearchProblem<StateMock, ActionMock>>();
         problem.setup(p => p.initial_state).returns(() => initial_state);
         problem.setup(p => p.getActions(initial_state)).returns(() => [action1]);
         problem.setup(p => p.doAction(initial_state, action1)).returns(() => state1);

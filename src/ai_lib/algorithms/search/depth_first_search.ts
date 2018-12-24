@@ -1,44 +1,44 @@
-import { Frontier, GenericSearch } from './generic_search';
-import { UniqueHashSet } from '../../structures/hash_set';
-import { Hashable } from '../../structures/hash_set';
-import { FifoQueue } from '../../structures/fifo_queue';
-import { SearchProblem, SearchNode } from './search_problem';
-import { SearchAlgorithm } from './search_algorithm';
+import { IFrontier, GenericSearch } from './generic_search';
+import { IHashable } from '../../structures/hash_set';
+import { ISearchProblem, SearchNode } from './search_problem';
 
 /** DFS: nodes searched in LIFO order */
-export class DepthFirstSearch<TState extends Hashable, TAction> extends GenericSearch<TState, TAction> {
+export class DepthFirstSearch<TState extends IHashable, TAction> extends GenericSearch<TState, TAction> {
 
-    constructor(problem: SearchProblem<TState, TAction>, path_cost_limit: number = Number.MAX_VALUE) {
+    constructor(problem: ISearchProblem<TState, TAction>, path_cost_limit: number = Number.MAX_VALUE) {
         super(problem, path_cost_limit);
         this._frontier = new LifoFrontier();
         this._frontier.push(new SearchNode(problem.initial_state));
     }
 }
 
-class LifoFrontier<T extends Hashable> implements Frontier<T> {
+class LifoFrontier<T extends IHashable> implements IFrontier<T> {
     private readonly frontier_queue: T[]
 
     constructor() {
         this.frontier_queue = [];
     }
 
-    push(search_node: T) {
+    public push(search_node: T) {
         this.frontier_queue.push(search_node);
     }
 
-    pop() : T {
-        return this.frontier_queue.pop();
+    public pop() : T {
+        if (this.frontier_queue.length === 0) {
+            throw new Error('queue is empty');
+        }
+        return this.frontier_queue.pop() as T;
     }
 
-    contains(node: T) : boolean {
+    public contains(node: T) : boolean {
         return this.frontier_queue.indexOf(node) >= 0;
     }
 
-    getStates() : T[] {
+    public getStates() : T[] {
         return this.frontier_queue;
     }
 
-    isEmpty() : boolean {
-        return this.frontier_queue.length == 0;
+    public isEmpty() : boolean {
+        return this.frontier_queue.length === 0;
     }
 }

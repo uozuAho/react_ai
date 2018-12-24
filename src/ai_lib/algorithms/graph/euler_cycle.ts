@@ -31,7 +31,7 @@ import { FifoQueue } from '../../structures/fifo_queue';
 /** Find an Eulerian cycle in a graph, if one exists. */
 export class EulerianCycle {
     // Eulerian cycle; null if no such cycle
-    private _cycle: number[] = null;
+    private _cycle: number[] | null = null;
 
     /**
      * Computes an Eulerian cycle in the specified graph, if one exists.
@@ -50,7 +50,7 @@ export class EulerianCycle {
 
         // create local view of adjacency lists, to iterate one vertex at a time
         // the helper Edge data type is used to avoid exploring both copies of an edge v-w
-        const adj: FifoQueue<Edge>[] = [];
+        const adj: Array<FifoQueue<Edge>> = [];
         for (let v = 0; v < G.num_nodes(); v++) {
             adj[v] = new FifoQueue<Edge>();
         }
@@ -83,7 +83,7 @@ export class EulerianCycle {
         // greedily search through edges in iterative DFS style
         this._cycle = [];
         while (stack.length > 0) {
-            let v = stack.pop();
+            let v = stack.pop() as number;
             while (!adj[v].isEmpty()) {
                 const edge = adj[v].pop();
                 if (edge.isUsed) { continue; }
@@ -194,7 +194,8 @@ export class EulerianCycle {
         }
 
         // check that first and last vertices in cycle() are the same
-        let first = -1, last = -1;
+        let first = -1;
+        let last = -1;
         for (const v of this.cycle()) {
             if (first === -1) {
                 first = v;

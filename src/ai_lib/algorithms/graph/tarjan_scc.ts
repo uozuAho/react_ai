@@ -82,7 +82,7 @@ export class TarjanSCC {
         }
         let b;
         do {
-            b = this._stack.pop();
+            b = this._stack.pop() as number;
             this._id[b] = this._count;
             this._low[b] = G.num_nodes();
         } while (b !== v);

@@ -1,12 +1,9 @@
 import { MaxFlow } from './max_flow';
 import { FlowNetwork, FlowEdge } from '../../structures/flow_network';
 
-describe('MaxFlow', function() {
+describe('MaxFlow', () => {
 
-    beforeEach(function() {
-    });
-
-    it('simple', function() {
+    it('simple', () => {
         const flow_net = new FlowNetwork(2);
         const edge = new FlowEdge(0, 1, 1);
         flow_net.add_flow_edge(edge);
@@ -18,7 +15,7 @@ describe('MaxFlow', function() {
         expect(max_flow.edges()).toEqual(new Set([edge]));
     });
 
-    it('multipath', function() {
+    it('multipath', () => {
         // two paths from 0 to 3, each with 1 capacity
         const flow_net = new FlowNetwork(4);
         flow_net.add_flow_edge(new FlowEdge(0, 1, 1));
@@ -33,7 +30,7 @@ describe('MaxFlow', function() {
         expect(max_flow.edges().size).toBe(4);
     });
 
-    it('undirected', function() {
+    it('undirected', () => {
         const flow_net = new FlowNetwork(2);
         flow_net.add_flow_edge(new FlowEdge(0, 1, 1));
         flow_net.add_flow_edge(new FlowEdge(1, 0, 1));
@@ -43,7 +40,7 @@ describe('MaxFlow', function() {
         expect(max_flow.edges().size).toBe(1);
     });
 
-    it('undirected multipath', function() {
+    it('undirected multipath', () => {
         const flow_net = new FlowNetwork(5);
 
         // 0 -> (1, 2)

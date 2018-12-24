@@ -1,14 +1,14 @@
 import { DiGraph } from '../../structures/graph';
 import { TransitiveClosure } from './transitive_closure';
 
-describe('TransitiveClosure', function() {
-    it('disconnected 2 graph', function() {
+describe('TransitiveClosure', () => {
+    it('disconnected 2 graph', () => {
         const g = new DiGraph(2);
         const tc = new TransitiveClosure(g);
         expect(tc.reachable(0, 1)).toBe(false);
     });
 
-    it('connected 3 graph', function() {
+    it('connected 3 graph', () => {
         const g = new DiGraph(3);
         g.add_edge(0, 1);
         g.add_edge(1, 2);
@@ -18,7 +18,7 @@ describe('TransitiveClosure', function() {
         expect(tc.reachable(2, 0)).toBe(false);
     });
 
-    it('strongly connected 3 graph', function() {
+    it('strongly connected 3 graph', () => {
         const g = new DiGraph(3);
         g.add_edge(0, 1);
         g.add_edge(1, 2);

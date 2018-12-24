@@ -92,14 +92,4 @@ export class DirectedDFS {
             throw new Error(`vertex ${v} is not between 0 and ${V - 1}`);
         }
     }
-
-    // throw an IllegalArgumentException unless {@code 0 <= v < V}
-    private validateVertices(vertices: number[]) {
-        if (vertices == null) {
-            throw new Error('argument is null');
-        }
-        for (const v of vertices) {
-            this.validateVertex(v);
-        }
-    }
 }

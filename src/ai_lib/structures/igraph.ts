@@ -4,7 +4,7 @@ export interface IGraph {
     /** add an edge between nodes with index p and q */
     add_edge(p: number, q: number, weight: number): void;
     /** remove the edge between 'from' and 'to'. If there are multiple edges, throw an error */
-    remove_edge(from: number, to: number);
+    remove_edge(from: number, to: number): void;
     get_edges(): Edge[];
     /** Get edges incident to the given node */
     adjacent(n: number): Edge[];

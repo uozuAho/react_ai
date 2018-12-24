@@ -1,8 +1,8 @@
 import { EulerianCycle } from './euler_cycle';
 import { Graph } from '../../structures/graph';
 
-describe('EulerCycle', function() {
-    it('connected 3 graph', function() {
+describe('EulerCycle', () => {
+    it('connected 3 graph', () => {
         const g = new Graph(3);
         g.add_edge(0, 1);
         g.add_edge(1, 2);
@@ -12,7 +12,7 @@ describe('EulerCycle', function() {
         expect(Array.from(e.cycle()).length).toBe(4);
     });
 
-    it('euler path', function() {
+    it('euler path', () => {
         const g = new Graph(3);
         g.add_edge(0, 1);
         g.add_edge(1, 2);

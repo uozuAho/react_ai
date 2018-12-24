@@ -16,7 +16,11 @@ export class CanvasDrawer {
 
     constructor(canvas: HTMLCanvasElement, height: number, width: number) {
         this.canvas = canvas;
-        this.ctx = this.canvas.getContext("2d");
+        const context = this.canvas.getContext("2d");
+        if(context === null) {
+            throw new Error("canvas 2d context must not be null");
+        }
+        this.ctx = context!;
         this.height = height;
         this.width = width;
     }

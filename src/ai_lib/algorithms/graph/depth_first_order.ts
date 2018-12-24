@@ -112,7 +112,7 @@ export class DepthFirstOrder {
             reverse.push(v);
         }
         while (reverse.length > 0) {
-            yield reverse.pop();
+            yield reverse.pop() as number;
         }
     }
 

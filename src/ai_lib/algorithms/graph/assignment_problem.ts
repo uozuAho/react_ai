@@ -91,7 +91,8 @@ export class AssignmentProblem {
 
         // build residual graph
         const G = new DiGraph(2 * this.n + 2);
-        const s = 2 * this.n, t = 2 * this.n + 1;
+        const s = 2 * this.n;
+        const t = 2 * this.n + 1;
         for (let i = 0; i < this.n; i++) {
             if (this.xy[i] === UNMATCHED) {
                 G.add_edge(s, i, 0.0);
@@ -117,7 +118,8 @@ export class AssignmentProblem {
 
         // augment along alternating path
         for (const e of spt.pathTo(t)) {
-            const i = e.from, j = e.to - this.n;
+            const i = e.from;
+            const j = e.to - this.n;
             if (i < this.n) {
                 this.xy[i] = j;
                 this.yx[j] = i;

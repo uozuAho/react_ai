@@ -1,7 +1,6 @@
 import { Edge } from '../../structures/igraph';
 import { DiGraph } from '../../structures/graph';
 import { IndexedPriorityQueue } from '../../structures/indexed_priority_queue';
-import { Assert } from '../../../libs/assert/Assert';
 
 /******************************************************************************
  *
@@ -99,7 +98,8 @@ export class DijkstraSP {
 
     // relax edge e and update pq if changed
     private relax(e: Edge) {
-        const v = e.from, w = e.to;
+        const v = e.from;
+        const w = e.to;
         if (this._distTo[w] > this._distTo[v] + e.weight) {
             this._distTo[w] = this._distTo[v] + e.weight;
             this._edgeTo[w] = e;
@@ -149,7 +149,7 @@ export class DijkstraSP {
             path.push(e);
         }
         while (path.length > 0) {
-            yield path.pop();
+            yield path.pop() as Edge;
         }
     }
 

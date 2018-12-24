@@ -37,8 +37,8 @@ import { DepthFirstOrder } from './depth_first_order';
  * Calculates a topological order for the given DiGraph.
  */
 export class TopoSort {
-    private _order: number[] = null;  // topological order
-    private _rank: number[] = null;               // rank[v] = rank of vertex v in order
+    private _order: number[] | null = null;  // topological order
+    private _rank: number[] | null  = null;  // rank[v] = rank of vertex v in order
 
     /**
      * Determines whether the digraph {@code G} has a topological order and, if so,
@@ -91,13 +91,13 @@ export class TopoSort {
      */
     public rank(v: number): number {
         this.validateVertex(v);
-        if (this.hasOrder()) { return this._rank[v]; }
+        if (this.hasOrder()) { return this._rank![v]; }
         else { return -1; }
     }
 
     // throw an IllegalArgumentException unless {@code 0 <= v < V}
     private validateVertex(v: number) {
-        const V = this._rank.length;
+        const V = this._rank!.length;
         if (v < 0 || v >= V) {
             throw new Error(`vertex ${v} is not between 0 and ${V - 1}`);
         }
