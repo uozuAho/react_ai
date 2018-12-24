@@ -13,11 +13,6 @@ export function App() {
 
 const componentRoutes: ISidebarItem[] = [
     new SidebarItem(
-      "/",
-      "Home",
-      () => <h2>No one's home</h2>
-    ).matchRouteExactly(),
-    new SidebarItem(
         "/astar",
         "A* search",
         () => <AStar />
@@ -27,9 +22,4 @@ const componentRoutes: ISidebarItem[] = [
       "Hello",
       () => <Hello />
     ),
-    new SidebarItem(
-      "/shoelaces",
-      "Shoelaces",
-      () => <h2>Shoelacesoo</h2>
-    )
 ];
