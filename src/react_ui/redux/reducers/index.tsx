@@ -1,6 +1,6 @@
-import { EnthusiasmAction } from '../actions';
+import { EnthusiasmAction } from '../../redux/actions';
 import { DECREMENT_ENTHUSIASM, INCREMENT_ENTHUSIASM } from '../constants/index';
-import { IStoreState } from '../types/index';
+import { IStoreState } from '../IStoreState';
 
 export function enthusiasm(state: IStoreState, action: EnthusiasmAction): IStoreState {
   switch (action.type) {

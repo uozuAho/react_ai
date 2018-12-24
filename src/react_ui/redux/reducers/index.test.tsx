@@ -1,6 +1,6 @@
 import { enthusiasm } from '.';
 import { decrementEnthusiasm, incrementEnthusiasm } from '../actions';
-import { IStoreState } from "../types";
+import { IStoreState } from "../IStoreState";
 
 it('should increment enthusiasm', () => {
     const state = {languageName: '', enthusiasmLevel: 1} as IStoreState;
