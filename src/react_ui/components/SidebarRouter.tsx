@@ -1,21 +1,20 @@
 import * as React from "react";
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
-import { Hello } from './Hello';
 
-interface ISidebarItem {
+export interface ISidebarItem {
   route: string;
   exact: boolean;
-  sidebarText: string,
+  label: string,
   render: () => JSX.Element;
 }
 
-class SidebarItem implements ISidebarItem {
+export class SidebarItem implements ISidebarItem {
 
   public exact = false;
 
   constructor(
     public route: string,
-    public sidebarText: string,
+    public label: string,
     public render: () => JSX.Element
   ) {}
 
@@ -25,29 +24,24 @@ class SidebarItem implements ISidebarItem {
   }
 }
 
-const sidebarItems: ISidebarItem[] = [
-  new SidebarItem(
-    "/",
-    "Home",
-    () => <h2>No one's home</h2>
-  ).matchRouteExactly(),
-  new SidebarItem(
-    "/hello",
-    "Hello",
-    () => <Hello />
-  ),
-  new SidebarItem(
-    "/shoelaces",
-    "Shoelaces",
-    () => <h2>Shoelacesoo</h2>
-  )
-];
+export interface ISidebarProps {
+  items: ISidebarItem[];
+}
+
+export const SidebarRouter = (props: ISidebarProps) => (
+  <Router>
+      <div style={{ display: "flex" }}>
+        {renderSidebar(props.items)}
+        {renderContent(props.items)}
+      </div>
+  </Router>
+);
 
 const renderSidebar = (items: ISidebarItem[]) => {
 
   const sidebarLinks = items.map(item =>
-    <li key={item.sidebarText}>
-      <Link to={item.route}>{item.sidebarText}</Link>
+    <li key={item.label}>
+      <Link to={item.route}>{item.label}</Link>
     </li>
   );
 
@@ -65,9 +59,9 @@ const renderSidebar = (items: ISidebarItem[]) => {
   );
 }
 
-const renderContent = () => (
+const renderContent = (items: ISidebarItem[]) => (
   <div style={{ flex: 1, padding: "10px" }}>
-    {sidebarItems.map((route, index) => (
+    {items.map((route, index) => (
       <Route
         key={index}
         path={route.route}
@@ -77,12 +71,3 @@ const renderContent = () => (
     ))}
   </div>
 )
-
-export const SidebarRouter = () => (
-  <Router>
-      <div style={{ display: "flex" }}>
-        {renderSidebar(sidebarItems)}
-        {renderContent()}
-      </div>
-  </Router>
-);
