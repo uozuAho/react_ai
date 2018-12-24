@@ -15,7 +15,7 @@ export class AStar extends React.Component {
 
     public render() {
         return (
-            <canvas id="astar_canvas" />
+            <canvas id="astar_canvas" height="500" width="500"/>
         );
     }
 }
