@@ -6,7 +6,6 @@ import { EnthusiasmAction } from './react_ui/actions';
 import Hello from './react_ui/containers/Hello';
 import './index.css';
 import { enthusiasm } from './react_ui/reducers/index';
-import registerServiceWorker from './react_ui/registerServiceWorker';
 import { IStoreState } from './react_ui/types';
 
 const store = createStore<IStoreState, EnthusiasmAction, {}, {}>(enthusiasm, {
@@ -21,4 +20,3 @@ ReactDOM.render(
   </Provider>,
   document.getElementById('root') as HTMLElement
 );
-registerServiceWorker();
