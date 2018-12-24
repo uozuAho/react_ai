@@ -49,7 +49,6 @@ const renderSidebar = (items: ISidebarItem[]) => {
     <div
       style={{
         padding: "10px",
-        width: "40%",
       }}
     >
       <ul>
