@@ -32,7 +32,6 @@ import { IGraph } from '../../structures/igraph';
 import { FifoQueue } from '../../structures/fifo_queue';
 
 const WHITE = false;
-const BLACK = true;
 
 /** Given a graph, find either (i) a bipartition or (ii) an odd-length cycle.
  *  Runs in O(E + V) time.
@@ -95,7 +94,8 @@ export class BipartiteX {
                     // Note: distTo[v] == distTo[w];
                     this._cycle = new FifoQueue<number>();
                     const stack: number[] = [];
-                    let x = thisNode, y = adjNode;
+                    let x = thisNode
+                    let y = adjNode;
                     while (x !== y) {
                         stack.push(x);
                         this._cycle.push(y);
@@ -104,7 +104,7 @@ export class BipartiteX {
                     }
                     stack.push(x);
                     while (stack.length > 0) {
-                        this._cycle.push(stack.pop());
+                        this._cycle.push(stack.pop() as number);
                     }
                     this._cycle.push(adjNode);
                     return;

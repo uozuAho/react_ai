@@ -1,14 +1,14 @@
 import { Point2d } from './point2d';
 import { GraphT, DiGraphT, EdgeT } from './graphT';
 
-describe('DiGraphOfPoint2d', function() {
+describe('DiGraphOfPoint2d', () => {
     let graph = new DiGraphT<Point2d>();
 
-    beforeEach(function() {
+    beforeEach(() => {
         graph = new DiGraphT<Point2d>();
     });
 
-    it('getAdjacent should depend on edge direction', function() {
+    it('getAdjacent should depend on edge direction', () => {
         const node1 = graph.add_node(new Point2d(1, 1));
         const node2 = graph.add_node(new Point2d(2, 2));
         graph.add_edgeT(node1, node2, 1);
@@ -16,20 +16,20 @@ describe('DiGraphOfPoint2d', function() {
         expect(graph.adjacentT(node2)).toEqual([]);
     });
 
-    it('contains', function() {
+    it('contains', () => {
         const node1 = graph.add_node(new Point2d(1, 1));
         const node2 = new Point2d(2, 2);
         expect(graph.contains(node1)).toBe(true);
         expect(graph.contains(node2)).toBe(false);
     });
 
-    it('getNodes', function() {
+    it('getNodes', () => {
         const node1 = graph.add_node(new Point2d(1, 1));
         const node2 = graph.add_node(new Point2d(2, 2));
         expect(graph.get_nodes()).toEqual([node1, node2]);
     });
 
-    it('cost', function() {
+    it('cost', () => {
         const node1 = graph.add_node(new Point2d(1, 1));
         const node2 = graph.add_node(new Point2d(2, 2));
         graph.add_edgeT(node1, node2, 555);
@@ -37,14 +37,14 @@ describe('DiGraphOfPoint2d', function() {
     });
 });
 
-describe('GraphOfPoint2d', function() {
+describe('GraphOfPoint2d', () => {
     let graph = new GraphT<Point2d>();
 
-    beforeEach(function() {
+    beforeEach(() => {
         graph = new GraphT<Point2d>();
     });
 
-    it('single edge should make both nodes adjacent to each other', function() {
+    it('single edge should make both nodes adjacent to each other', () => {
         const node1 = graph.add_node(new Point2d(1, 1));
         const node2 = graph.add_node(new Point2d(2, 2));
         graph.add_edgeT(node1, node2, 1);

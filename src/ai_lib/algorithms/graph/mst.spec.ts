@@ -1,12 +1,9 @@
 import { Mst } from './mst';
 import { Graph } from '../../structures/graph';
 
-describe('UnionFind', function() {
+describe('UnionFind', () => {
 
-    beforeEach(function() {
-    });
-
-    it('triangle graph, all weights 1', function() {
+    it('triangle graph, all weights 1', () => {
         const graph = new Graph(3);
         graph.add_edge(0, 1);
         graph.add_edge(1, 2);
@@ -15,7 +12,7 @@ describe('UnionFind', function() {
         expect(mst.get_edges().length).toBe(2);
     });
 
-    it('triangle graph, different weights', function() {
+    it('triangle graph, different weights', () => {
         const graph = new Graph(3);
         graph.add_edge(0, 1, 1);
         graph.add_edge(1, 2, 1);

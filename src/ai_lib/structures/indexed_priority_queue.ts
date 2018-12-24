@@ -48,7 +48,7 @@ export class IndexedPriorityQueue<T> {
      * is used (assumes T understands greater/less than operators), and queue becomes
      * min-priority.
      */
-    constructor(maxN: number, compare: (a: T, b: T) => number = null) {
+    constructor(maxN: number, compare: ((a: T, b: T) => number) | null = null) {
         if (maxN < 0) {
             throw new Error();
         }
@@ -150,7 +150,7 @@ export class IndexedPriorityQueue<T> {
         this.sink(1);
         Assert.isTrue(min === this.pq[this.n + 1]);
         this.qp[min] = -1;        // delete
-        this.keys[min] = null;    // to help with garbage collection
+        delete this.keys[min];
         this.pq[this.n + 1] = -1;        // not needed
         return min;
     }
@@ -237,7 +237,7 @@ export class IndexedPriorityQueue<T> {
         this.exch(index, this.n--);
         this.swim(index);
         this.sink(index);
-        this.keys[i] = null;
+        delete this.keys[i];
         this.qp[i] = -1;
     }
 

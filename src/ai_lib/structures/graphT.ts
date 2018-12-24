@@ -22,7 +22,7 @@ class GraphBase<T> {
         return this._graph.get_edges();
     }
 
-    public get_edgesT(): EdgeT<T>[] {
+    public get_edgesT(): Array<EdgeT<T>> {
         const edges = this._graph.get_edges();
         return edges.map(e => new EdgeT(this._nodes[e.from], this._nodes[e.to], e.weight));
     }
@@ -54,7 +54,7 @@ class GraphBase<T> {
         return this._graph.adjacent(n);
     }
 
-    public adjacentT(node: T): EdgeT<T>[] {
+    public adjacentT(node: T): Array<EdgeT<T>> {
         const idx = this._get_idx(node);
         const adj = this.adjacent(idx);
         return adj.map(a => new EdgeT(this._nodes[a.from], this._nodes[a.to], a.weight));

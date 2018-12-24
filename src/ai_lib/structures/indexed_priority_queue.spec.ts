@@ -1,7 +1,7 @@
 import { IndexedPriorityQueue } from './indexed_priority_queue';
 
-describe('IndexedPriorityQueue', function() {
-    it('simple order', function() {
+describe('IndexedPriorityQueue', () => {
+    it('simple order', () => {
         const q = new IndexedPriorityQueue<string>(5);
         q.insert(0, 'a');
         q.insert(1, 'b');
@@ -20,7 +20,7 @@ describe('IndexedPriorityQueue', function() {
         expect(Array.from(q.iterator())).toEqual([0, 1, 2]);
     });
 
-    it('different order', function() {
+    it('different order', () => {
         const q = new IndexedPriorityQueue<string>(5);
         q.insert(0, 'c');
         q.insert(1, 'b');

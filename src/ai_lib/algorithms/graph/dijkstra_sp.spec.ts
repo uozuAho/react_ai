@@ -1,9 +1,9 @@
 import { DiGraph } from '../../structures/graph';
 import { DijkstraSP } from './dijkstra_sp';
 
-describe('DijkstraSP', function() {
+describe('DijkstraSP', () => {
 
-    it('graph with no edges', function() {
+    it('graph with no edges', () => {
         const graph = new DiGraph(12);
         const d = new DijkstraSP(graph, 0);
         expect(d.distTo(1)).toBe(Number.MAX_VALUE);
@@ -11,7 +11,7 @@ describe('DijkstraSP', function() {
         expect(Array.from(d.pathTo(1))).toEqual([]);
     });
 
-    it('simple graph', function() {
+    it('simple graph', () => {
         const graph = new DiGraph(2);
         graph.add_edge(0, 1, 1);
         const d = new DijkstraSP(graph, 0);
@@ -20,7 +20,7 @@ describe('DijkstraSP', function() {
         expect(Array.from(d.pathTo(1)).length).toBe(1);
     });
 
-    it('less simple graph', function() {
+    it('less simple graph', () => {
         const graph = new DiGraph(4);
         graph.add_edge(0, 1, 0.3);
         graph.add_edge(1, 2, 0.3);

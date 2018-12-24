@@ -1,3 +1,4 @@
+// @ts-ignore - ignore implicit any here
 import * as ebloss from 'edmonds-blossom';
 
 /** Edmond's blossom algorithm for finding the max weight matching

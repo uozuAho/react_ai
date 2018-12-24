@@ -3,18 +3,14 @@ import { GraphT } from '../structures/graphT';
 import { CanvasDrawer } from './canvasDrawer';
 
 export class Graph2dDiagram {
-    private _width: number;
-    private _height: number;
     private _draw: CanvasDrawer;
 
     constructor(canvasId: string, height: number, width: number) {
-        this._height = height;
-        this._width = width;
-        this._draw = new CanvasDrawer(<HTMLCanvasElement>document.getElementById(canvasId), height, width);
+        this._draw = new CanvasDrawer(document.getElementById(canvasId) as HTMLCanvasElement, height, width);
     }
 
     public redraw(graph: GraphT<Point2d>) {
-        let _this = this;
+        const _this = this;
         this._draw.clear();
         graph.get_edgesT().forEach(edge => _this.drawEdge(edge.from, edge.to));
         // draw nodes on top of edges

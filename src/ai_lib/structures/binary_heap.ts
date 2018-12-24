@@ -3,13 +3,13 @@ export class BinaryHeap<T> {
 
     private _size = 0;
     private _buf: T[] = [];
-    private _compare: (a: T, b: T) => number;
+    private _compare: ((a: T, b: T) => number);
 
     /**
      * @param compare Optional comparator. Default is a < b ? -1 : a > b ? 1 : 0.
      *                Reverse this to make a max heap.
      */
-    constructor(compare: (a: T, b: T) => number = null) {
+    constructor(compare: ((a: T, b: T) => number) | null = null) {
         this._compare = compare || this.defaultCompare;
     }
 

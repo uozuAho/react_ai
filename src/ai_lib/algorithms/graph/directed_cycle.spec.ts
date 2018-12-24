@@ -11,8 +11,8 @@ function assertContainsSequence(a: number[], seq: number[]) {
     }
 }
 
-describe('DirectedCycle', function() {
-    it('should not find a cycle if there is none', function() {
+describe('DirectedCycle', () => {
+    it('should not find a cycle if there is none', () => {
         const g = new DiGraph(2);
         g.add_edge(0, 1);
         const c = new DirectedCycle(g);
@@ -20,7 +20,7 @@ describe('DirectedCycle', function() {
         expect(c.getCycle()).toEqual([]);
     });
 
-    it('should find a cycle if there is one', function() {
+    it('should find a cycle if there is one', () => {
         const g = new DiGraph(2);
         g.add_edge(0, 1);
         g.add_edge(1, 0);
@@ -30,7 +30,7 @@ describe('DirectedCycle', function() {
         assertContainsSequence(c.getCycle(), [0, 1]);
     });
 
-    it('cycle should be in correct order', function() {
+    it('cycle should be in correct order', () => {
         const g = new DiGraph(3);
         g.add_edge(0, 1);
         g.add_edge(1, 2);

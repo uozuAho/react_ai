@@ -1,8 +1,8 @@
-import { SearchAlgorithm } from './search_algorithm';
-import { Hashable, UniqueHashSet } from '../../structures/hash_set';
-import { SearchNode, SearchProblem } from './search_problem';
+import { ISearchAlgorithm } from './search_algorithm';
+import { IHashable, UniqueHashSet } from '../../structures/hash_set';
+import { SearchNode, ISearchProblem } from './search_problem';
 
-export interface Frontier<T> {
+export interface IFrontier<T> {
     push(state: T): void;
     pop() : T;
     contains(state: T) : boolean;
@@ -14,7 +14,7 @@ export interface Frontier<T> {
  *  frontier determines the type of search, eg. breadth/depth-first, best-first
  *  etc.
  */
-export abstract class GenericSearch<TState extends Hashable, TAction> implements SearchAlgorithm<TState, TAction> {
+export abstract class GenericSearch<TState extends IHashable, TAction> implements ISearchAlgorithm<TState, TAction> {
 
     /** A path to a goal state has been found, or all reachable states have been explored */
     public isFinished: boolean = false;
@@ -22,15 +22,15 @@ export abstract class GenericSearch<TState extends Hashable, TAction> implements
     /** Search is finished and a path to a goal state has been found */
     public isSolved: boolean = false;
 
-    protected _frontier: Frontier<SearchNode<TState, TAction>>;
+    protected _frontier: IFrontier<SearchNode<TState, TAction>>;
 
-    private readonly _problem: SearchProblem<TState, TAction>;
+    private readonly _problem: ISearchProblem<TState, TAction>;
     private readonly _explored: UniqueHashSet<SearchNode<TState, TAction>>;
-    private _goal: SearchNode<TState, TAction> = null;
+    private _goal: SearchNode<TState, TAction> | null = null;
     private _currentState: TState;
     private _path_cost_limit: number;
 
-    constructor(problem: SearchProblem<TState, TAction>, path_cost_limit: number) {
+    constructor(problem: ISearchProblem<TState, TAction>, path_cost_limit: number) {
         this._problem = problem;
         this._currentState = problem.initial_state;
         this._explored = new UniqueHashSet();
@@ -63,8 +63,8 @@ export abstract class GenericSearch<TState extends Hashable, TAction> implements
      *  Returns an empty array if not finished or unsolvable.
      */
     public getSolution() : TAction[] {
-        if (!this.isFinished) return [];
-        if (this._goal === null) return[];
+        if (!this.isFinished) { return []; }
+        if (this._goal === null) { return[]; }
         return this.getSolutionTo(this._goal.state);
     }
 
@@ -72,11 +72,12 @@ export abstract class GenericSearch<TState extends Hashable, TAction> implements
      *  Throws error if given state hasn't been explored.
     */
     public getSolutionTo(state: TState) : TAction[] {
-        if (!this._explored.containsHash(state.hash()))
+        if (!this._explored.containsHash(state.hash())) {
             throw new Error("cannot get solution to unexplored state");
-        let actions = [];
-        let currentNode = this._explored.getItemByHash(state.hash());
-        while (currentNode.action !== null) {
+        }
+        const actions = [];
+        let currentNode = this._explored.getItemByHash(state.hash()) as SearchNode<TState, TAction> | null;
+        while (currentNode && currentNode.action !== null) {
             actions.push(currentNode.action);
             currentNode = currentNode.parent;
         }
@@ -85,24 +86,24 @@ export abstract class GenericSearch<TState extends Hashable, TAction> implements
 
     /** expand the next state on the frontier */
     public step() {
-        if (this.isFinished) return;
+        if (this.isFinished) { return; }
         if (this._frontier.isEmpty()) {
             this.isFinished = true;
             return;
         }
 
-        let _this = this;
+        const _this = this;
         let node = this._frontier.pop();
         while (node !== undefined && this._explored.contains(node)) {
             node = this._frontier.pop();
         }
         this._explored.add(node);
         this._currentState = node.state;
-        let actions = this._problem.getActions(node.state);
-        actions.forEach(function(action) {
-            let child_state = _this._problem.doAction(node.state, action);
-            let child_cost = node.path_cost + _this._problem.pathCost(node.state, action);
-            let child = new SearchNode(child_state, node, action, child_cost);
+        const actions = this._problem.getActions(node.state);
+        actions.forEach((action) => {
+            const child_state = _this._problem.doAction(node.state, action);
+            const child_cost = node.path_cost + _this._problem.pathCost(node.state, action);
+            const child = new SearchNode(child_state, node, action, child_cost);
             if (!_this._explored.contains(child) && !_this._frontier.contains(child)) {
                 if (_this._problem.isGoal(child.state)) {
                     _this._goal = child;

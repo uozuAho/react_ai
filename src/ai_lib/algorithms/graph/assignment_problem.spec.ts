@@ -1,8 +1,8 @@
 import { AssignmentProblem } from './assignment_problem';
 
-describe('AssignmentProblem', function() {
+describe('AssignmentProblem', () => {
 
-    it('2x2 simple', function() {
+    it('2x2 simple', () => {
         const weights = [
             [10, 1],
             [1, 10]
@@ -13,7 +13,7 @@ describe('AssignmentProblem', function() {
         expect(ap.weight()).toBe(2);
     });
 
-    it('3x3', function() {
+    it('3x3', () => {
         const weights = [
             [10, 1, 1],
             [1, 10, 1],

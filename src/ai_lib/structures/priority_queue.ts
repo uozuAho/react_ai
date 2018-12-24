@@ -14,7 +14,7 @@ export class PriorityQueue<T> {
      * at the top of the queue, so if you want a max-priority queue, pass
      * a compare function like a < b ? 1 : a > b ? -1 : 0;
      */
-    constructor(data: T[] = [], compare: (a: T, b: T) => number = null) {
+    constructor(data: T[] = [], compare: ((a: T, b: T) => number) | null = null) {
         if (compare !== null) {
             this._heap = new BinaryHeap(compare);
         } else {

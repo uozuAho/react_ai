@@ -1,9 +1,9 @@
 import { Graph } from '../../structures/graph';
 import { HopcroftKarp } from './hopcroft_karp';
 
-describe('HopcroftKarp', function() {
+describe('HopcroftKarp', () => {
 
-    it('graph with no edges', function() {
+    it('graph with no edges', () => {
         const graph = new Graph(12);
         const hk = new HopcroftKarp(graph);
         expect(hk.isPerfect()).toBe(false);
@@ -16,7 +16,7 @@ describe('HopcroftKarp', function() {
         }
     });
 
-    it('connected 2 graph', function() {
+    it('connected 2 graph', () => {
         const graph = new Graph(2);
         graph.add_edge(0, 1);
         const hk = new HopcroftKarp(graph);
@@ -29,7 +29,7 @@ describe('HopcroftKarp', function() {
         expect(hk.minVertexCover().length).toBe(1);
     });
 
-    it('connected 3 graph should fail since not bipartite', function() {
+    it('connected 3 graph should fail since not bipartite', () => {
         const graph = new Graph(3);
         graph.add_edge(0, 1);
         graph.add_edge(0, 2);

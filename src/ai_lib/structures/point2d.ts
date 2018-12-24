@@ -1,6 +1,6 @@
-import { Hashable } from './hash_set';
+import { IHashable } from './hash_set';
 
-export class Point2d implements Hashable {
+export class Point2d implements IHashable {
     public x: number;
     public y: number;
 

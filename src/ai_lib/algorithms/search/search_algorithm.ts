@@ -1,4 +1,4 @@
-export interface SearchAlgorithm<TState, TAction> {
+export interface ISearchAlgorithm<TState, TAction> {
     isFinished : boolean;
     /** Get the current search state */
     getCurrentState() : TState;

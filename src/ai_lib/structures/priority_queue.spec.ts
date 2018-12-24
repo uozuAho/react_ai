@@ -1,17 +1,17 @@
 import { PriorityQueue } from './priority_queue';
 
-describe('PriorityQueue', function() {
+describe('PriorityQueue', () => {
     let numberQueue: PriorityQueue<number>;
 
-    beforeEach(function() {
+    beforeEach(() => {
         numberQueue = new PriorityQueue();
     });
 
-    it('pop empty should throw', function() {
+    it('pop empty should throw', () => {
         expect(() => numberQueue.pop()).toThrow();
     });
 
-    it('pop in correct order', function() {
+    it('pop in correct order', () => {
         numberQueue.push(1);
         numberQueue.push(5);
         numberQueue.push(2);
@@ -24,7 +24,7 @@ describe('PriorityQueue', function() {
         expect(numberQueue.pop()).toBe(5);
     });
 
-    it('object queue', function() {
+    it('object queue', () => {
         const objQueue = new PriorityQueue<TestObj>([], (a, b) => TestObj.compare(a, b));
         objQueue.push(new TestObj(5, '5'));
         objQueue.push(new TestObj(1, '1'));
@@ -43,7 +43,7 @@ class TestObj {
         this.myData = dat;
     }
 
-    static compare(a: TestObj, b: TestObj) {
+    public static compare(a: TestObj, b: TestObj) {
         return a.myNumber < b.myNumber ? -1 : a.myNumber > b.myNumber ? 1 : 0;
     }
 }

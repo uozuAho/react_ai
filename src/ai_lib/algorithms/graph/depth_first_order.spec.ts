@@ -1,8 +1,8 @@
 import { DiGraph } from '../../structures/graph';
 import { DepthFirstOrder } from './depth_first_order';
 
-describe('DepthFirstOrder', function() {
-    it('preorder small', function() {
+describe('DepthFirstOrder', () => {
+    it('preorder small', () => {
         const g2 = new DiGraph(3);
         g2.add_edge(0, 1);
         g2.add_edge(0, 2);
@@ -10,7 +10,7 @@ describe('DepthFirstOrder', function() {
         expect(Array.from(o.pre())).toEqual([0, 1, 2]);
     });
 
-    it('postorder small', function() {
+    it('postorder small', () => {
         const g2 = new DiGraph(3);
         g2.add_edge(0, 1);
         g2.add_edge(0, 2);
@@ -18,7 +18,7 @@ describe('DepthFirstOrder', function() {
         expect(Array.from(o.post())).toEqual([1, 2, 0]);
     });
 
-    it('reverse post small', function() {
+    it('reverse post small', () => {
         const g2 = new DiGraph(3);
         g2.add_edge(0, 1);
         g2.add_edge(0, 2);

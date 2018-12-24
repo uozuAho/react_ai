@@ -1,6 +1,6 @@
-import { Hashable } from '../../structures/hash_set';
+import { IHashable } from '../../structures/hash_set';
 
-export interface SearchProblem<TState extends Hashable, TAction> {
+export interface ISearchProblem<TState extends IHashable, TAction> {
     readonly initial_state: TState;
 
     getActions(state: TState) : TAction[];
@@ -11,17 +11,20 @@ export interface SearchProblem<TState extends Hashable, TAction> {
 
 
 /** Similar to child node, p79 in AI book */
-export class SearchNode<TState extends Hashable, TAction> implements Hashable {
+export class SearchNode<TState extends IHashable, TAction> implements IHashable {
     /** Problem state at this node */
     public readonly state: TState;
     /** Action that resulted in this state */
-    public readonly action: TAction;
-    public readonly parent: SearchNode<TState, TAction>;
+    public readonly action: TAction | null;
+    public readonly parent: SearchNode<TState, TAction> | null;
     /** Path cost at this node = parent.path_cost + step_cost(parent, action) */
     public readonly path_cost: number;
 
-    constructor(state: TState, parent: SearchNode<TState, TAction> = null, action: TAction = null,
-        path_cost: number = 0) {
+    constructor(state: TState,
+        parent: SearchNode<TState, TAction> | null = null,
+        action: TAction | null = null,
+        path_cost: number = 0)
+    {
         this.state = state;
         this.parent = parent;
         this.action = action;

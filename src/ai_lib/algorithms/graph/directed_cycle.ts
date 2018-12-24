@@ -32,10 +32,10 @@ import { IGraph } from '../../structures/igraph';
  * Find a cycle in a directed graph
  */
 export class DirectedCycle {
-    private marked: boolean[];        // marked[v] = has vertex v been marked?
-    private edgeTo: number[];            // edgeTo[v] = previous vertex on path to v
-    private onStack: boolean[];       // onStack[v] = is vertex on the stack?
-    private _cycle: number[] = null;    // directed cycle (or null if no such cycle)
+    private marked: boolean[];                 // marked[v] = has vertex v been marked?
+    private edgeTo: number[];                  // edgeTo[v] = previous vertex on path to v
+    private onStack: boolean[];                // onStack[v] = is vertex on the stack?
+    private _cycle: number[] | null = null;    // directed cycle (or null if no such cycle)
 
     /**
      * Determines whether the digraph {@code G} has a directed cycle and, if so,
@@ -104,7 +104,8 @@ export class DirectedCycle {
     private check() {
         if (this.hasCycle()) {
             // verify cycle
-            let first = -1, last = -1;
+            let first = -1;
+            let last = -1;
             for (const v of this.getCycle()) {
                 if (first === -1) { first = v; }
                 last = v;
