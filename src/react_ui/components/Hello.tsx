@@ -52,4 +52,4 @@ export function mapDispatchToProps(dispatch: any) {
   }
 }
 
-export const hello = connect(mapStateToProps, mapDispatchToProps)(HelloView);
+export const Hello = connect(mapStateToProps, mapDispatchToProps)(HelloView);

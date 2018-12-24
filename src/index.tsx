@@ -3,10 +3,10 @@ import * as ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 import { EnthusiasmAction } from './react_ui/redux/actions';
-import { hello as Hello } from './react_ui/components/Hello';
 import './index.css';
 import { enthusiasm } from './react_ui/redux/reducers/index';
 import { IStoreState } from './react_ui/redux/IStoreState';
+import { App } from './react_ui/components/App';
 
 const store = createStore<IStoreState, EnthusiasmAction, {}, {}>(enthusiasm, {
   enthusiasmLevel: 1,
@@ -16,7 +16,7 @@ const store = createStore<IStoreState, EnthusiasmAction, {}, {}>(enthusiasm, {
 
 ReactDOM.render(
   <Provider store={store}>
-    <Hello />
+    <App />
   </Provider>,
   document.getElementById('root') as HTMLElement
 );

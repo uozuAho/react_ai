@@ -2,7 +2,7 @@
   "extends": ["tslint:recommended", "tslint-react", "tslint-config-prettier"],
   "rules": {
     "ordered-imports": false,
-    "variable-name": [true, "allow-leading-underscore", "allow-snake-case"],
+    "variable-name": false,
     "member-ordering": false,
     "max-classes-per-file": false,
     "jsdoc-format": false,
