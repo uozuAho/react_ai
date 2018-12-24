@@ -1,13 +1,10 @@
 import * as React from 'react';
-import { AppRouter } from './AppRouter';
-import { Hello } from './Hello';
+import { SidebarRouter } from './SidebarRouter';
 
 export function App() {
     return (
         <div className="app">
-            <p>yo</p>
-            <AppRouter />
-            <Hello />
+            <SidebarRouter />
         </div>
     );
 }
