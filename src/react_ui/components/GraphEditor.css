@@ -1,7 +1,8 @@
 circle:hover {
-    stroke: red
+    stroke: red;
+    stroke-width: 3px;
 }
 
 svg {
-    border: 1
+    border: solid black
 }

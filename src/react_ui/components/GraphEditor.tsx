@@ -16,10 +16,10 @@ export class GraphEditor extends React.Component {
   }
 
   public componentDidMount() {
-    this._svg = SVG('graph_editor').size(500, 500);
+    this._svg = SVG('graph_editor').size('100%', 500);
     this._svg.click((e: MouseEvent) => {
       const p = this._svg.point(e.x, e.y);
-      this._svg.circle(10).move(p.x, p.y);
+      this._svg.circle(20).move(p.x, p.y);
     });
   }
 }
