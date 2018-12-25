@@ -7,6 +7,7 @@ const circle_selected_class = 'selected';
 export class GraphEditor extends React.Component {
 
   private _svg: SVG.Doc;
+  private _draggingNode: SVG.Circle | null = null;
 
   public render() {
     return (
@@ -20,14 +21,52 @@ export class GraphEditor extends React.Component {
   public componentDidMount() {
     this._svg = SVG('graph_editor').size('100%', 500);
     this._svg.click((e: MouseEvent) => {
-      this.createNodeAtScreenCoords(e.x, e.y);
+      if (!this.isDragging()) {
+        this.createNodeAtScreenCoords(e.x, e.y);
+      }
     });
   }
 
   private createNodeAtScreenCoords(x: number, y: number) {
+    const p = this.screenToSvg(x, y);
+    const node = this._svg.circle(20).move(p.x, p.y);
+    addNodeClickHandler(node);
+    this.addNodeMouseDownHandler(node);
+  }
+
+  private addNodeMouseDownHandler(node: SVG.Circle) {
+    node.on('mousedown', () => {
+      this._draggingNode = node;
+      // tslint:disable-next-line:no-console
+      console.log('node mousedown');
+
+      this._svg.on('mousemove', (e: MouseEvent) => {
+        const p = this.screenToSvg(e.x, e.y);
+        this._draggingNode!.move(p.x, p.y);
+      });
+    });
+    node.on('mouseup', () => {
+      this._draggingNode = null;
+      this._svg.off('mousemove');
+      // tslint:disable-next-line:no-console
+      console.log('node mouseup');
+    });
+    this._svg.on('mouseup', () => {
+      this._svg.off('mousemove');
+      // tslint:disable-next-line:no-console
+      console.log('svg mouseup');
+    });
+
+  }
+
+  /** convert screen coords to svg */
+  private screenToSvg(x: number, y: number) {
     const p = this._svg.point(x, y);
-    const circle = this._svg.circle(20).move(p.x, p.y);
-    addNodeClickHandler(circle);
+    return {x: p.x, y: p.y};
+  }
+
+  private isDragging() {
+    return this._draggingNode !== null;
   }
 }
 
