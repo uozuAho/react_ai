@@ -2,7 +2,7 @@ import * as React from 'react';
 import { SidebarRouter, ISidebarItem, SidebarItem } from './SidebarRouter';
 import { Hello } from './Hello';
 import { AStar } from './alg_views/search/AStar';
-import { GraphEditor } from './GraphEditor';
+import { GraphEditor } from './graph_editor/GraphEditor';
 
 export function App() {
     return (

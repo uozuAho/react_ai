@@ -3,6 +3,10 @@ circle:hover {
     stroke-width: 3px;
 }
 
+circle.selected {
+    fill: yellow;
+}
+
 svg {
     border: solid black
 }
