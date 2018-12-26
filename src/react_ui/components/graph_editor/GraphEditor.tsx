@@ -5,7 +5,7 @@ import * as SVG from 'svg.js';
 const circle_selected_class = 'selected';
 
 interface IGraphEditorState {
-  edgeMode: boolean;
+  isEdgeMode: boolean;
   draggingNode: SVG.Circle | null;
 }
 
@@ -16,7 +16,7 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
   constructor(props: any) {
     super(props);
     this.state = {
-      edgeMode: false,
+      isEdgeMode: false,
       draggingNode: null
     };
   }
@@ -26,7 +26,7 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
       <div>
         <h1>Graph editor</h1>
         <button onClick={this.toggleEdgeMode}>
-          {this.state.edgeMode ? 'place nodes' : 'place edges'}
+          {this.state.isEdgeMode ? 'place nodes' : 'place edges'}
         </button>
         <div id="graph_editor" />
       </div>
@@ -39,18 +39,18 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
   }
 
   private toggleEdgeMode = () => {
-    this.setState({edgeMode: !this.state.edgeMode});
+    this.setState({isEdgeMode: !this.state.isEdgeMode});
   }
 
   private createNodeAtScreenCoords(x: number, y: number) {
     const p = this.screenToSvg(x, y);
     const node = this._svg.circle(20).move(p.x, p.y);
-    this.addNodeMouseDownHandler(node);
+    this.addNodeMouseHandlers(node);
   }
 
   private setSvgMouseHandlers(svg: SVG.Doc) {
     svg.click((e: MouseEvent) => {
-      if (!this.isDragging()) {
+      if (!this.isDragging() && !this.state.isEdgeMode) {
         this.createNodeAtScreenCoords(e.x, e.y);
       }
     });
@@ -62,23 +62,29 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
   private addNodeDraggingHandler(svg: SVG.Doc) {
     svg.on('mousemove', (e: MouseEvent) => {
       const p = this.screenToSvg(e.x, e.y);
-      // modifying state... probably a no-no but meh
-      this.state.draggingNode!.move(p.x, p.y);
+      if (!this.state.isEdgeMode) {
+        // modifying state... probably a no-no but meh
+        this.state.draggingNode!.move(p.x, p.y);
+      }
     });
   }
 
-  private addNodeMouseDownHandler(node: SVG.Circle) {
+  private addNodeMouseHandlers(node: SVG.Circle) {
     node.on('mousedown', () => {
-      this.setState({draggingNode: node});
-      this.addNodeDraggingHandler(this._svg);
+      if (!this.state.isEdgeMode) {
+        this.setState({draggingNode: node});
+        this.addNodeDraggingHandler(this._svg);
+      }
     });
     node.on('mouseup', () => {
-      // todo: selecting node doesn't work
-      if (!this.isDragging()) {
-        this.toggleNodeIsSelected(node);
-      }
-      this.setState({draggingNode: null});
       this._svg.off('mousemove');
+      if (!this.state.isEdgeMode) {
+        // todo: selecting node doesn't work
+        if (!this.isDragging()) {
+          this.toggleNodeIsSelected(node);
+        }
+        this.setState({draggingNode: null});
+      }
     });
   }
 
