@@ -42,12 +42,6 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
     this.setState({isEdgeMode: !this.state.isEdgeMode});
   }
 
-  private createNodeAtScreenCoords(x: number, y: number) {
-    const p = this.screenToSvg(x, y);
-    const node = this._svg.circle(20).move(p.x, p.y);
-    this.addNodeMouseHandlers(node);
-  }
-
   private setSvgMouseHandlers(svg: SVG.Doc) {
     svg.click((e: MouseEvent) => {
       if (!this.isDragging() && !this.state.isEdgeMode) {
@@ -59,14 +53,10 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
     });
   }
 
-  private addNodeDraggingHandler(svg: SVG.Doc) {
-    svg.on('mousemove', (e: MouseEvent) => {
-      const p = this.screenToSvg(e.x, e.y);
-      if (!this.state.isEdgeMode) {
-        // modifying state... probably a no-no but meh
-        this.state.draggingNode!.move(p.x, p.y);
-      }
-    });
+  private createNodeAtScreenCoords(x: number, y: number) {
+    const p = this.screenToSvg(x, y);
+    const node = this._svg.circle(20).move(p.x, p.y);
+    this.addNodeMouseHandlers(node);
   }
 
   private addNodeMouseHandlers(node: SVG.Circle) {
@@ -84,6 +74,16 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
           this.toggleNodeIsSelected(node);
         }
         this.setState({draggingNode: null});
+      }
+    });
+  }
+
+  private addNodeDraggingHandler(svg: SVG.Doc) {
+    svg.on('mousemove', (e: MouseEvent) => {
+      const p = this.screenToSvg(e.x, e.y);
+      if (!this.state.isEdgeMode) {
+        // modifying state... probably a no-no but meh
+        this.state.draggingNode!.move(p.x, p.y);
       }
     });
   }
