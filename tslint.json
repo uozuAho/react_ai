@@ -6,7 +6,8 @@
     "member-ordering": false,
     "max-classes-per-file": false,
     "jsdoc-format": false,
-    "no-bitwise": false
+    "no-bitwise": false,
+    "object-literal-sort-keys": false
   },
   "linterOptions": {
     "exclude": [

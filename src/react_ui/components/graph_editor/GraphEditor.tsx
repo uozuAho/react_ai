@@ -4,15 +4,30 @@ import * as SVG from 'svg.js';
 
 const circle_selected_class = 'selected';
 
-export class GraphEditor extends React.Component {
+interface IGraphEditorState {
+  edgeMode: boolean;
+  draggingNode: SVG.Circle | null;
+}
+
+export class GraphEditor extends React.Component<{}, IGraphEditorState> {
 
   private _svg: SVG.Doc;
-  private _draggingNode: SVG.Circle | null = null;
+
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      edgeMode: false,
+      draggingNode: null
+    };
+  }
 
   public render() {
     return (
       <div>
         <h1>Graph editor</h1>
+        <button onClick={this.toggleEdgeMode}>
+          {this.state.edgeMode ? 'place nodes' : 'place edges'}
+        </button>
         <div id="graph_editor" />
       </div>
     );
@@ -27,6 +42,10 @@ export class GraphEditor extends React.Component {
     });
   }
 
+  private toggleEdgeMode = () => {
+    this.setState({edgeMode: !this.state.edgeMode});
+  }
+
   private createNodeAtScreenCoords(x: number, y: number) {
     const p = this.screenToSvg(x, y);
     const node = this._svg.circle(20).move(p.x, p.y);
@@ -36,17 +55,18 @@ export class GraphEditor extends React.Component {
 
   private addNodeMouseDownHandler(node: SVG.Circle) {
     node.on('mousedown', () => {
-      this._draggingNode = node;
+      this.setState({draggingNode: node});
       // tslint:disable-next-line:no-console
       console.log('node mousedown');
 
       this._svg.on('mousemove', (e: MouseEvent) => {
         const p = this.screenToSvg(e.x, e.y);
-        this._draggingNode!.move(p.x, p.y);
+        // modifying state... probably a no-no but meh
+        this.state.draggingNode!.move(p.x, p.y);
       });
     });
     node.on('mouseup', () => {
-      this._draggingNode = null;
+      this.setState({draggingNode: null});
       this._svg.off('mousemove');
       // tslint:disable-next-line:no-console
       console.log('node mouseup');
@@ -66,7 +86,7 @@ export class GraphEditor extends React.Component {
   }
 
   private isDragging() {
-    return this._draggingNode !== null;
+    return this.state.draggingNode !== null;
   }
 }
 
