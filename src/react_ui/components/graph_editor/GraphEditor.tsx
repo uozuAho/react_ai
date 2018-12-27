@@ -7,6 +7,8 @@ const circle_selected_class = 'selected';
 interface IGraphEditorState {
   isEdgeMode: boolean;
   draggingNode: SVG.Circle | null;
+  drawingEdge: SVG.Line | null;
+  edgeFromNode: SVG.Circle | null;
 }
 
 export class GraphEditor extends React.Component<{}, IGraphEditorState> {
@@ -17,7 +19,9 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
     super(props);
     this.state = {
       isEdgeMode: false,
-      draggingNode: null
+      draggingNode: null,
+      drawingEdge: null,
+      edgeFromNode: null
     };
   }
 
@@ -50,25 +54,53 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
     });
     svg.on('mouseup', () => {
       this._svg.off('mousemove');
+      // delete 'drawing' edge if it doesn't finish on a node
+      if (this.state.drawingEdge) {
+        this.state.drawingEdge.remove();
+        this.setState({drawingEdge: null, edgeFromNode: null});
+      }
+    });
+    svg.on('mousedown', (e: MouseEvent) => {
+      if (this.state.isEdgeMode) {
+        svg.on('mousemove', (moveEvent: MouseEvent) => {
+          const edge = this.state.drawingEdge;
+          if (edge === null) { return; }
+          const p = this.screenToSvg(moveEvent.x, moveEvent.y);
+          edge.plot(edge.attr('x1'), edge.attr('y1'), p.x, p.y);
+        });
+      }
     });
   }
 
   private createNodeAtScreenCoords(x: number, y: number) {
     const p = this.screenToSvg(x, y);
     const node = this._svg.circle(20).move(p.x, p.y);
-    this.addNodeMouseHandlers(node);
+    this.addNodeModeMouseHandlers(node);
   }
 
-  private addNodeMouseHandlers(node: SVG.Circle) {
+  private startEdgeAtSvgCoords(x: number, y: number) {
+    const edge = this._svg.line(x, y, x, y);
+    return edge;
+  }
+
+  private addNodeModeMouseHandlers(node: SVG.Circle) {
     node.on('mousedown', () => {
-      if (!this.state.isEdgeMode) {
+      if (this.state.isEdgeMode) {
+        const edge = this.startEdgeAtSvgCoords(node.cx(), node.cy());
+        this.setState({drawingEdge: edge, edgeFromNode: node});
+      } else {
         this.setState({draggingNode: node});
         this.addNodeDraggingHandler(this._svg);
       }
     });
     node.on('mouseup', () => {
       this._svg.off('mousemove');
-      if (!this.state.isEdgeMode) {
+      if (this.state.drawingEdge) {
+        const edge = this.state.drawingEdge;
+        // fix end of edge to finish on node's center
+        edge.plot(edge.attr('x1'), edge.attr('y1'), node.cx(), node.cy());
+        this.setState({drawingEdge: null, edgeFromNode: null});
+      } else {
         // todo: selecting node doesn't work
         if (!this.isDragging()) {
           this.toggleNodeIsSelected(node);
