@@ -6,7 +6,7 @@ const circle_selected_class = 'selected';
 
 interface IGraphEditorState {
   isEdgeMode: boolean;
-  draggingNode: SVG.Circle | null;
+  draggingNode: DraggingNode | null;
   drawingEdge: DrawingEdge | null;
   edges: Edge[]
 }
@@ -54,7 +54,7 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
     });
     svg.on('mouseup', () => {
       this._svg.off('mousemove');
-      // delete 'drawing' edge if it doesn't finish on a node
+      // cancel edge if it doesn't finish on a node
       if (this.state.drawingEdge) {
         this.state.drawingEdge.svgLine.remove();
         this.setState({drawingEdge: null});
@@ -91,7 +91,10 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
         const edge = this.startEdgeAtNode(node);
         this.setState({drawingEdge: edge});
       } else {
-        this.setState({draggingNode: node});
+        const edgesStartingAtNode = this.state.edges.filter(e => e.fromNode === node);
+        const edgesEndingAtNode = this.state.edges.filter(e => e.toNode === node);
+        const draggingNode = new DraggingNode(node, edgesStartingAtNode, edgesEndingAtNode);
+        this.setState({draggingNode});
         this.addNodeDraggingHandler(this._svg);
       }
     });
@@ -181,5 +184,26 @@ class Edge {
 
   public static fromDrawingEdge(edge: DrawingEdge, toNode: SVG.Circle): Edge {
     return new Edge(edge.svgLine, edge.fromNode, toNode);
+  }
+}
+
+class DraggingNode {
+  constructor(
+    public svgNode: SVG.Circle,
+    public edgesFrom: Edge[],
+    public edgesTo: Edge[]
+  )
+  {}
+
+  /** Move the node to the given svg coords */
+  public move(x: number, y: number) {
+    // todo: move the svg circle's center to the given coords (use attr?)
+    this.svgNode.move(x, y);
+    for (const e of this.edgesFrom) {
+      e.setStartPos(this.svgNode.cx(), this.svgNode.cy());
+    }
+    for (const e of this.edgesTo) {
+      e.setEndPos(this.svgNode.cx(), this.svgNode.cy());
+    }
   }
 }
