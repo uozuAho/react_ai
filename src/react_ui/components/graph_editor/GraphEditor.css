@@ -1,0 +1,16 @@
+svg {
+    border: solid black;
+}
+
+circle:hover {
+    stroke: red;
+    stroke-width: 3px;
+}
+
+circle.selected {
+    fill: yellow;
+}
+
+line {
+    stroke: black;
+}
