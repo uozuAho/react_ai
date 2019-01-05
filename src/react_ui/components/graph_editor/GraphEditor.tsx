@@ -2,8 +2,6 @@ import * as React from 'react';
 import './GraphEditor.css';
 import * as SVG from 'svg.js';
 
-const circle_selected_class = 'selected';
-
 interface IGraphEditorState {
   isEdgeMode: boolean;
   draggingNode: DraggingNode | null;
@@ -60,16 +58,6 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
         this.setState({drawingEdge: null});
       }
     });
-    svg.on('mousedown', (e: MouseEvent) => {
-      if (this.state.isEdgeMode) {
-        svg.on('mousemove', (moveEvent: MouseEvent) => {
-          const edge = this.state.drawingEdge;
-          if (edge === null) { return; }
-          const p = this.screenToSvg(moveEvent.x, moveEvent.y);
-          edge.setEndPos(p.x, p.y);
-        });
-      }
-    });
   }
 
   private createNodeAtScreenCoords(x: number, y: number) {
@@ -90,6 +78,10 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
       if (this.state.isEdgeMode) {
         const edge = this.startEdgeAtNode(node);
         this.setState({drawingEdge: edge});
+        this._svg.on('mousemove', (moveEvent: MouseEvent) => {
+          const p = this.screenToSvg(moveEvent.x, moveEvent.y);
+          edge.setEndPos(p.x, p.y);
+        });
       } else {
         const edgesStartingAtNode = this.state.edges.filter(e => e.fromNode === node);
         const edgesEndingAtNode = this.state.edges.filter(e => e.toNode === node);
@@ -107,10 +99,6 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
         this.state.edges.push(Edge.fromDrawingEdge(edge, node));
         this.setState({drawingEdge: null});
       } else {
-        // todo: selecting node doesn't work
-        if (!this.isDragging()) {
-          this.toggleNodeIsSelected(node);
-        }
         this.setState({draggingNode: null});
       }
     });
@@ -134,14 +122,6 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
 
   private isDragging() {
     return this.state.draggingNode !== null;
-  }
-
-  private toggleNodeIsSelected(node: SVG.Circle) {
-    if (node.hasClass(circle_selected_class)) {
-      node.removeClass(circle_selected_class)
-    } else {
-      node.addClass(circle_selected_class);
-    }
   }
 }
 
