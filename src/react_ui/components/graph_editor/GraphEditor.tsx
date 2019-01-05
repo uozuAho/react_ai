@@ -52,12 +52,15 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
     });
     svg.on('mouseup', () => {
       this._svg.off('mousemove');
-      // cancel edge if it doesn't finish on a node
-      if (this.state.drawingEdge) {
-        this.state.drawingEdge.svgLine.remove();
-        this.setState({drawingEdge: null});
-      }
+      this.cancelDrawingEdge();
     });
+  }
+
+  private cancelDrawingEdge() {
+    if (this.state.drawingEdge) {
+      this.state.drawingEdge.svgLine.remove();
+      this.setState({drawingEdge: null});
+    }
   }
 
   private createNodeAtScreenCoords(x: number, y: number) {
@@ -66,22 +69,25 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
     this.addNodeModeMouseHandlers(node);
   }
 
-  private startEdgeAtNode(node: SVG.Circle): DrawingEdge {
+  private startDrawingEdgeAtNode(node: SVG.Circle) {
     const x = node.cx();
     const y = node.cy();
+
     const line = this._svg.line(x, y, x, y);
-    return new DrawingEdge(line, node);
+    const edge = new DrawingEdge(line, node);
+
+    this.setState({drawingEdge: edge});
+
+    this._svg.on('mousemove', (moveEvent: MouseEvent) => {
+      const p = this.screenToSvg(moveEvent.x, moveEvent.y);
+      edge.setEndPos(p.x, p.y);
+    });
   }
 
   private addNodeModeMouseHandlers(node: SVG.Circle) {
     node.on('mousedown', () => {
       if (this.state.isEdgeMode) {
-        const edge = this.startEdgeAtNode(node);
-        this.setState({drawingEdge: edge});
-        this._svg.on('mousemove', (moveEvent: MouseEvent) => {
-          const p = this.screenToSvg(moveEvent.x, moveEvent.y);
-          edge.setEndPos(p.x, p.y);
-        });
+        this.startDrawingEdgeAtNode(node);
       } else {
         const edgesStartingAtNode = this.state.edges.filter(e => e.fromNode === node);
         const edgesEndingAtNode = this.state.edges.filter(e => e.toNode === node);
