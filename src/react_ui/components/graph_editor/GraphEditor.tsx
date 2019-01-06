@@ -12,6 +12,7 @@ interface IGraphEditorState {
 export class GraphEditor extends React.Component<{}, IGraphEditorState> {
 
   private _svg: SVG.Doc;
+  private _arrowMarker: SVG.Marker;
 
   constructor(props: any) {
     super(props);
@@ -37,6 +38,11 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
 
   public componentDidMount() {
     this._svg = SVG('graph_editor').size('100%', 500);
+    this._arrowMarker = this._svg.marker(13, 13, add => {
+      add.viewbox(-0, -5, 10, 10);
+      add.ref(13, 0);
+      add.path('M 0,-5 L 10 ,0 L 0,5').fill('#000');
+    });
     this.setSvgMouseHandlers(this._svg);
   }
 
@@ -87,6 +93,7 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
       }
     });
     node.on('click', (e: MouseEvent) => {
+      // stop clicks propagating to svg, which would draw a new node
       e.stopPropagation();
     });
   }
@@ -96,8 +103,9 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
     const y = node.cy();
     // send svg lines to the back since hovering over nodes takes precedence
     const line = this._svg.line(x, y, x, y).back();
-    const edge = new DrawingEdge(line, node);
+    line.marker('end', this._arrowMarker);
 
+    const edge = new DrawingEdge(line, node);
     this.setState({drawingEdge: edge});
 
     this._svg.on('mousemove', (moveEvent: MouseEvent) => {
