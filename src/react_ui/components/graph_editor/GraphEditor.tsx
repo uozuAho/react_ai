@@ -65,7 +65,7 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
 
   private createNodeAtScreenCoords(x: number, y: number) {
     const p = this.screenToSvg(x, y);
-    const node = this._svg.circle(20).move(p.x, p.y);
+    const node = this._svg.circle(20).center(p.x, p.y);
     this.addNodeModeMouseHandlers(node);
   }
 
@@ -77,13 +77,17 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
         this.startDraggingNode(node);
       }
     });
-    node.on('mouseup', () => {
+    node.on('mouseup', (e: MouseEvent) => {
+      e.stopPropagation();
       this._svg.off('mousemove');
       if (this.state.drawingEdge) {
         this.finishDrawingEdge(node);
       } else {
         this.finishDraggingNode();
       }
+    });
+    node.on('click', (e: MouseEvent) => {
+      e.stopPropagation();
     });
   }
 
@@ -192,7 +196,7 @@ class DraggingNode {
   /** Move the node to the given svg coords */
   public move(x: number, y: number) {
     // todo: move the svg circle's center to the given coords (use attr?)
-    this.svgNode.move(x, y);
+    this.svgNode.center(x, y);
     for (const e of this.edgesFrom) {
       e.setStartPos(this.svgNode.cx(), this.svgNode.cy());
     }
