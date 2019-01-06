@@ -69,10 +69,27 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
     this.addNodeModeMouseHandlers(node);
   }
 
+  private addNodeModeMouseHandlers(node: SVG.Circle) {
+    node.on('mousedown', () => {
+      if (this.state.isEdgeMode) {
+        this.startDrawingEdgeAtNode(node);
+      } else {
+        this.startDraggingNode(node);
+      }
+    });
+    node.on('mouseup', () => {
+      this._svg.off('mousemove');
+      if (this.state.drawingEdge) {
+        this.finishDrawingEdge(node);
+      } else {
+        this.finishDraggingNode();
+      }
+    });
+  }
+
   private startDrawingEdgeAtNode(node: SVG.Circle) {
     const x = node.cx();
     const y = node.cy();
-
     const line = this._svg.line(x, y, x, y);
     const edge = new DrawingEdge(line, node);
 
@@ -84,40 +101,31 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
     });
   }
 
-  private addNodeModeMouseHandlers(node: SVG.Circle) {
-    node.on('mousedown', () => {
-      if (this.state.isEdgeMode) {
-        this.startDrawingEdgeAtNode(node);
-      } else {
-        const edgesStartingAtNode = this.state.edges.filter(e => e.fromNode === node);
-        const edgesEndingAtNode = this.state.edges.filter(e => e.toNode === node);
-        const draggingNode = new DraggingNode(node, edgesStartingAtNode, edgesEndingAtNode);
-        this.setState({draggingNode});
-        this.addNodeDraggingHandler(this._svg);
-      }
-    });
-    node.on('mouseup', () => {
-      this._svg.off('mousemove');
-      if (this.state.drawingEdge) {
-        const edge = this.state.drawingEdge;
-        // fix end of edge to finish on node's center
-        edge.setEndPos(node.cx(), node.cy());
-        this.state.edges.push(Edge.fromDrawingEdge(edge, node));
-        this.setState({drawingEdge: null});
-      } else {
-        this.setState({draggingNode: null});
-      }
-    });
-  }
+  private startDraggingNode(node: SVG.Circle) {
+    const edgesStartingAtNode = this.state.edges.filter(e => e.fromNode === node);
+    const edgesEndingAtNode = this.state.edges.filter(e => e.toNode === node);
+    const draggingNode = new DraggingNode(node, edgesStartingAtNode, edgesEndingAtNode);
+    this.setState({ draggingNode });
 
-  private addNodeDraggingHandler(svg: SVG.Doc) {
-    svg.on('mousemove', (e: MouseEvent) => {
+    this._svg.on('mousemove', (e: MouseEvent) => {
       const p = this.screenToSvg(e.x, e.y);
       if (!this.state.isEdgeMode) {
         // modifying state... probably a no-no but meh
         this.state.draggingNode!.move(p.x, p.y);
       }
     });
+  }
+
+  private finishDrawingEdge(node: SVG.Circle) {
+    const edge = this.state.drawingEdge!;
+    // fix end of edge to finish on node's center
+    edge.setEndPos(node.cx(), node.cy());
+    this.state.edges.push(Edge.fromDrawingEdge(edge, node));
+    this.setState({ drawingEdge: null });
+  }
+
+  private finishDraggingNode() {
+    this.setState({ draggingNode: null });
   }
 
   /** convert screen coords to svg */
