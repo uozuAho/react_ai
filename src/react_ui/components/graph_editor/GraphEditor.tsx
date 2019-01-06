@@ -94,7 +94,8 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
   private startDrawingEdgeAtNode(node: SVG.Circle) {
     const x = node.cx();
     const y = node.cy();
-    const line = this._svg.line(x, y, x, y);
+    // send svg lines to the back since hovering over nodes takes precedence
+    const line = this._svg.line(x, y, x, y).back();
     const edge = new DrawingEdge(line, node);
 
     this.setState({drawingEdge: edge});
