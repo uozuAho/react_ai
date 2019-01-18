@@ -1,6 +1,7 @@
 import * as React from 'react';
 import './GraphEditor.css';
 import * as SVG from 'svg.js';
+import { randomSquareGraph } from 'src/ai_lib/structures/graphT';
 
 interface IGraphEditorState {
   isEdgeMode: boolean;
@@ -32,6 +33,7 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
           {this.state.isEdgeMode ? 'Place nodes' : 'Place edges'}
         </button>
         <button onClick={this.clear}>Clear</button>
+        <button onClick={this.generateRandomGraph}>Random</button>
         <div id="graph_editor" />
       </div>
     );
@@ -81,8 +83,13 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
 
   private createNodeAtScreenCoords(x: number, y: number) {
     const p = this.screenToSvg(x, y);
-    const node = this._svg.circle(20).center(p.x, p.y);
+    this.createNodeAtSvgCoords(p.x, p.y);
+  }
+
+  private createNodeAtSvgCoords(x: number, y: number): SVG.Circle {
+    const node = this._svg.circle(20).center(x, y);
     this.addNodeModeMouseHandlers(node);
+    return node;
   }
 
   private addNodeModeMouseHandlers(node: SVG.Circle) {
@@ -111,9 +118,7 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
   private startDrawingEdgeAtNode(node: SVG.Circle) {
     const x = node.cx();
     const y = node.cy();
-    // send svg lines to the back since hovering over nodes takes precedence
-    const line = this._svg.line(x, y, x, y).back();
-    line.marker('end', this._arrowMarker);
+    const line = this.createSvgEdge(x, y, x, y);
 
     const edge = new DrawingEdge(line, node);
     this.setState({drawingEdge: edge});
@@ -147,6 +152,18 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
     this.setState({ drawingEdge: null });
   }
 
+  private createEdge(from: SVG.Circle, to: SVG.Circle) {
+    const line = this.createSvgEdge(from.cx(), from.cy(), to.cx(), to.cy());
+    this.state.edges.push(new Edge(line, from, to));
+  }
+
+  private createSvgEdge(x1: number, y1: number, x2: number, y2: number): SVG.Line {
+    // send svg lines to the back since hovering over nodes takes precedence
+    const line = this._svg.line(x1, y1, x2, y2).back();
+    line.marker('end', this._arrowMarker);
+    return line;
+  }
+
   private finishDraggingNode() {
     this.setState({ draggingNode: null });
   }
@@ -159,6 +176,16 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
 
   private isDragging() {
     return this.state.draggingNode !== null;
+  }
+
+  private generateRandomGraph = () => {
+    const bounds = this._svg.viewbox();
+    const graph = randomSquareGraph(bounds.height, bounds.width, 30);
+    this.clear();
+    const nodes = graph.get_nodes().map(n => this.createNodeAtSvgCoords(n.x, n.y));
+    for (const edge of graph.get_edges()) {
+      this.createEdge(nodes[edge.from], nodes[edge.to]);
+    }
   }
 }
 
