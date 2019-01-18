@@ -29,8 +29,9 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
       <div>
         <h1>Graph editor</h1>
         <button onClick={this.toggleEdgeMode}>
-          {this.state.isEdgeMode ? 'place nodes' : 'place edges'}
+          {this.state.isEdgeMode ? 'Place nodes' : 'Place edges'}
         </button>
+        <button onClick={this.clear}>Clear</button>
         <div id="graph_editor" />
       </div>
     );
@@ -38,16 +39,25 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
 
   public componentDidMount() {
     this._svg = SVG('graph_editor').size('100%', 500);
-    this._arrowMarker = this._svg.marker(13, 13, add => {
-      add.viewbox(-0, -5, 10, 10);
-      add.ref(13, 0);
-      add.path('M 0,-5 L 10 ,0 L 0,5').fill('#000');
-    });
+    this.initArrowMarker();
     this.setSvgMouseHandlers(this._svg);
   }
 
   private toggleEdgeMode = () => {
     this.setState({isEdgeMode: !this.state.isEdgeMode});
+  }
+
+  private clear = () => {
+    this._svg.clear();
+    this.initArrowMarker();
+  }
+
+  private initArrowMarker() {
+    this._arrowMarker = this._svg.marker(13, 13, add => {
+      add.viewbox(-0, -5, 10, 10);
+      add.ref(13, 0);
+      add.path('M 0,-5 L 10 ,0 L 0,5').fill('#000');
+    });
   }
 
   private setSvgMouseHandlers(svg: SVG.Doc) {
@@ -152,6 +162,7 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
   }
 }
 
+/** An edge while it is being drawn */
 class DrawingEdge {
   constructor(
     public svgLine: SVG.Line,
@@ -167,6 +178,7 @@ class DrawingEdge {
   }
 }
 
+/** A completed edge */
 class Edge {
   constructor(
     public svgLine: SVG.Line,
@@ -194,6 +206,7 @@ class Edge {
   }
 }
 
+/** A node while it is being dragged */
 class DraggingNode {
   constructor(
     public svgNode: SVG.Circle,
@@ -204,7 +217,6 @@ class DraggingNode {
 
   /** Move the node to the given svg coords */
   public move(x: number, y: number) {
-    // todo: move the svg circle's center to the given coords (use attr?)
     this.svgNode.center(x, y);
     for (const e of this.edgesFrom) {
       e.setStartPos(this.svgNode.cx(), this.svgNode.cy());
