@@ -1,26 +1,34 @@
 import * as React from 'react';
 import './GraphEditor.css';
 import * as SVG from 'svg.js';
-import { randomSquareGraph } from 'src/ai_lib/structures/graphT';
+import { randomSquareGraph, DiGraphT, GraphT } from 'src/ai_lib/structures/graphT';
+import { Point2d } from 'src/ai_lib/structures/point2d';
+
+interface IGraphEditorProps {
+  /** Set a reference to this editor, for use by parent components */
+  setRef?: (ref?: GraphEditor) => void;
+}
 
 interface IGraphEditorState {
   isEdgeMode: boolean;
   draggingNode: DraggingNode | null;
   drawingEdge: DrawingEdge | null;
+  nodes: SVG.Circle[];
   edges: Edge[]
 }
 
-export class GraphEditor extends React.Component<{}, IGraphEditorState> {
+export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditorState> {
 
   private _svg: SVG.Doc;
   private _arrowMarker: SVG.Marker;
 
-  constructor(props: any) {
+  constructor(props: IGraphEditorProps) {
     super(props);
     this.state = {
       isEdgeMode: false,
       draggingNode: null,
       drawingEdge: null,
+      nodes: [],
       edges: []
     };
   }
@@ -39,9 +47,37 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
   }
 
   public componentDidMount() {
+    if (this.props.setRef) {this.props.setRef(this)};
     this._svg = SVG('graph_editor').size('100%', 500);
     this.initArrowMarker();
     this.setSvgMouseHandlers(this._svg);
+  }
+
+  public componentWillUnmount() {
+    if (this.props.setRef) {this.props.setRef(undefined)};
+  }
+
+  public setGraph(graph: GraphT<Point2d>) {
+    this.clear();
+    const nodes = graph.get_nodes().map(n => this.createNodeAtSvgCoords(n.x, n.y));
+    const edges = graph.get_edges().map(e => this.createEdge(nodes[e.from], nodes[e.to]));
+    this.setState({nodes, edges});
+  }
+
+  public getGraph(): GraphT<Point2d> {
+    const graph = new GraphT<Point2d>();
+    const nodeMap = new Map<SVG.Circle, number>();
+
+    this.state.nodes.map((node, idx) => {
+      graph.add_node(new Point2d(node.cx(), node.cy()));
+      nodeMap.set(node, idx);
+    });
+
+    this.state.edges.map(e =>
+      graph.add_edge(nodeMap.get(e.fromNode)!, nodeMap.get(e.toNode)!)
+    );
+
+    return graph;
   }
 
   private toggleEdgeMode = () => {
@@ -49,6 +85,10 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
   }
 
   private clear = () => {
+    this.setState({
+      nodes: [],
+      edges: []
+    });
     this._svg.clear();
     this.initArrowMarker();
   }
@@ -64,7 +104,8 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
   private setSvgMouseHandlers(svg: SVG.Doc) {
     svg.click((e: MouseEvent) => {
       if (!this.isDragging() && !this.state.isEdgeMode) {
-        this.createNodeAtScreenCoords(e.x, e.y);
+        const node = this.createNodeAtScreenCoords(e.x, e.y);
+        this.state.nodes.push(node);
       }
     });
     svg.on('mouseup', () => {
@@ -80,9 +121,9 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
     }
   }
 
-  private createNodeAtScreenCoords(x: number, y: number) {
+  private createNodeAtScreenCoords(x: number, y: number): SVG.Circle {
     const p = this.screenToSvg(x, y);
-    this.createNodeAtSvgCoords(p.x, p.y);
+    return this.createNodeAtSvgCoords(p.x, p.y);
   }
 
   private createNodeAtSvgCoords(x: number, y: number): SVG.Circle {
@@ -151,9 +192,9 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
     this.setState({ drawingEdge: null });
   }
 
-  private createEdge(from: SVG.Circle, to: SVG.Circle) {
+  private createEdge(from: SVG.Circle, to: SVG.Circle): Edge {
     const line = this.createSvgEdge(from.cx(), from.cy(), to.cx(), to.cy());
-    this.state.edges.push(new Edge(line, from, to));
+    return new Edge(line, from, to);
   }
 
   private createSvgEdge(x1: number, y1: number, x2: number, y2: number): SVG.Line {
@@ -180,11 +221,7 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
   private generateRandomGraph = () => {
     const bounds = this._svg.viewbox();
     const graph = randomSquareGraph(bounds.height, bounds.width, 30);
-    this.clear();
-    const nodes = graph.get_nodes().map(n => this.createNodeAtSvgCoords(n.x, n.y));
-    for (const edge of graph.get_edges()) {
-      this.createEdge(nodes[edge.from], nodes[edge.to]);
-    }
+    this.setGraph(graph);
   }
 }
 

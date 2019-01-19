@@ -9,6 +9,8 @@ interface INodeOrdererViewState {
 
 export class NodeOrdererView extends React.Component<any, INodeOrdererViewState> {
 
+    private _graphEditor: GraphEditor;
+
     constructor(props: any) {
         super(props);
         this.state = {
@@ -22,8 +24,9 @@ export class NodeOrdererView extends React.Component<any, INodeOrdererViewState>
             <div>
                 <h1>Node orderer</h1>
                 <p>Find node orderings in directed graphs with and without cycles</p>
-                <button>{this.state.nextButtonText}</button>
-                <GraphEditor />
+                <p>{this.state.instructionsText}</p>
+                <button onClick={this.onNextClick}>{this.state.nextButtonText}</button>
+                <GraphEditor setRef={this.setEditorRef}/>
             </div>
         );
     }
@@ -32,7 +35,18 @@ export class NodeOrdererView extends React.Component<any, INodeOrdererViewState>
         this.state.viewerState.run();
     }
 
-    private updateViewerState(input: StateInput) {
+    private onNextClick = () => {
+        this.updateViewerState(StateInput.Next);
+        const graph = this._graphEditor.getGraph();
+        // tslint:disable-next-line:no-console
+        console.log(graph);
+    }
+
+    private setEditorRef = (ref: GraphEditor) => {
+        this._graphEditor = ref;
+    }
+
+    private updateViewerState = (input: StateInput) => {
         const currentViewerState = this.state.viewerState;
         const nextViewerState = this.state.viewerState.next(input);
 

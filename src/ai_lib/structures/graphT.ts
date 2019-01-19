@@ -35,7 +35,7 @@ class GraphBase<T> {
         return node;
     }
 
-    /** Add edge by node indes (not id) */
+    /** Add edge by node index (not id) */
     public add_edge(p: number, q: number, weight: number = 1): void {
         this._graph.add_edge(p, q, weight);
     }
