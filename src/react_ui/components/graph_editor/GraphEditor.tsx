@@ -28,7 +28,6 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
   public render() {
     return (
       <div>
-        <h1>Graph editor</h1>
         <button onClick={this.toggleEdgeMode}>
           {this.state.isEdgeMode ? 'Place nodes' : 'Place edges'}
         </button>
