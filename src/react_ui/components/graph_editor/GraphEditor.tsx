@@ -66,6 +66,17 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
 
   public getGraph(): GraphT<Point2d> {
     const graph = new GraphT<Point2d>();
+    this.addNodesAndEdgesFromEditor(graph);
+    return graph;
+  }
+
+  public getDigraph(): DiGraphT<Point2d> {
+    const graph = new DiGraphT<Point2d>();
+    this.addNodesAndEdgesFromEditor(graph);
+    return graph;
+  }
+
+  private addNodesAndEdgesFromEditor(graph: GraphT<Point2d> | DiGraphT<Point2d>) {
     const nodeMap = new Map<SVG.Circle, number>();
 
     this.state.nodes.map((node, idx) => {
@@ -76,8 +87,6 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
     this.state.edges.map(e =>
       graph.add_edge(nodeMap.get(e.fromNode)!, nodeMap.get(e.toNode)!)
     );
-
-    return graph;
   }
 
   private toggleEdgeMode = () => {

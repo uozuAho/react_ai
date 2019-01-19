@@ -1,21 +1,27 @@
 import * as React from 'react';
 import { GraphEditor } from '../../graph_editor/GraphEditor';
+import { DiGraphT } from 'src/ai_lib/structures/graphT';
+import { Point2d } from 'src/ai_lib/structures/point2d';
+import { TopoSort } from 'src/ai_lib/algorithms/graph/toposort';
 
 interface INodeOrdererViewState {
     instructionsText?: string;
     nextButtonText: string;
-    viewerState: AlgViewerState;
 }
 
 export class NodeOrdererView extends React.Component<any, INodeOrdererViewState> {
 
     private _graphEditor: GraphEditor;
+    // Viewer state is kept separate since react state updates may not occur immediately, and
+    // not all viewer state changes require a re-render
+    private _viewerState: AlgViewerState;
+    private _originalGraph: DiGraphT<Point2d>;
 
     constructor(props: any) {
         super(props);
+        this._viewerState = this.createGraphState();
         this.state = {
             nextButtonText: 'Next',
-            viewerState: this.createGraphState
         };
     }
 
@@ -32,14 +38,11 @@ export class NodeOrdererView extends React.Component<any, INodeOrdererViewState>
     }
 
     public componentDidMount() {
-        this.state.viewerState.run();
+        this._viewerState.run();
     }
 
     private onNextClick = () => {
         this.updateViewerState(StateInput.Next);
-        const graph = this._graphEditor.getGraph();
-        // tslint:disable-next-line:no-console
-        console.log(graph);
     }
 
     private setEditorRef = (ref: GraphEditor) => {
@@ -47,8 +50,8 @@ export class NodeOrdererView extends React.Component<any, INodeOrdererViewState>
     }
 
     private updateViewerState = (input: StateInput) => {
-        const currentViewerState = this.state.viewerState;
-        const nextViewerState = this.state.viewerState.next(input);
+        const currentViewerState = this._viewerState;
+        const nextViewerState = this._viewerState.next(input);
 
         if (nextViewerState === currentViewerState) {
             return;
@@ -57,12 +60,13 @@ export class NodeOrdererView extends React.Component<any, INodeOrdererViewState>
             if (currentViewerState.onLeavingState !== null) {
                 currentViewerState.onLeavingState();
             }
-            this.setState({viewerState: nextViewerState});
+            this._viewerState = nextViewerState;
             nextViewerState.run();
         }
     }
 
-    private createGraphState = new AlgViewerState(
+    private createGraphState = () => new AlgViewerState(
+        'create graph',
         () => {
             this.setState({
                 instructionsText: 'Draw a graph'
@@ -71,11 +75,46 @@ export class NodeOrdererView extends React.Component<any, INodeOrdererViewState>
         input => {
             switch (input) {
                 case StateInput.Next: {
-                    return this.state.viewerState;
+                    const graph = this._graphEditor.getDigraph();
+                    this._originalGraph = graph;
+                    if (new TopoSort(graph).hasOrder()) {
+                        return this.showTopoOrderState();
+                    } else {
+                        throw new Error('contains cycle. Not supported ... yet');
+                    }
                 }
-                default: return this.state.viewerState;
+                default: return this._viewerState;
             }
         }
+    );
+
+    private showTopoOrderState: (() => AlgViewerState) = () => new AlgViewerState(
+        'show topo',
+        () => {
+            this.setState({instructionsText: 'Colouring nodes in topological order'});
+
+            const topo = new TopoSort(this._originalGraph);
+            const order = Array.from(topo.order());
+
+            let idx = 0;
+            this._viewerState.data.timer = setInterval(() => {
+                const prevIdx = idx;
+                if (++idx === order.length) { idx = 0; }
+                // this.svgnodes[prevIdx].highlighted = false;
+                // this.svgnodes[idx].highlighted = true;
+                // tslint:disable-next-line:no-console
+                console.log('yo');
+            }, 300);
+        },
+        input => {
+          switch (input) {
+            case StateInput.Back: {
+              return this.createGraphState();
+            }
+            default: return this._viewerState;
+          }
+        },
+        () => clearInterval(this._viewerState.data.timer)
     );
 }
 
@@ -86,6 +125,7 @@ enum StateInput {
 
 class AlgViewerState {
     constructor(
+      public label: string,
       public run: (() => void),
       public next: ((input: StateInput) => AlgViewerState),
       public onLeavingState: (() => void) | null = null,
