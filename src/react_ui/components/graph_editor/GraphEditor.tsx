@@ -1,26 +1,35 @@
 import * as React from 'react';
 import './GraphEditor.css';
 import * as SVG from 'svg.js';
-import { randomSquareGraph } from 'src/ai_lib/structures/graphT';
+import { randomSquareGraph, DiGraphT, GraphT } from 'src/ai_lib/structures/graphT';
+import { Point2d } from 'src/ai_lib/structures/point2d';
+import { GraphEditorNode } from './GraphEditorNode';
+
+interface IGraphEditorProps {
+  /** Set a reference to this editor, for use by parent components */
+  setRef?: (ref?: GraphEditor) => void;
+}
 
 interface IGraphEditorState {
   isEdgeMode: boolean;
   draggingNode: DraggingNode | null;
   drawingEdge: DrawingEdge | null;
+  nodes: GraphEditorNode[];
   edges: Edge[]
 }
 
-export class GraphEditor extends React.Component<{}, IGraphEditorState> {
+export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditorState> {
 
   private _svg: SVG.Doc;
   private _arrowMarker: SVG.Marker;
 
-  constructor(props: any) {
+  constructor(props: IGraphEditorProps) {
     super(props);
     this.state = {
       isEdgeMode: false,
       draggingNode: null,
       drawingEdge: null,
+      nodes: [],
       edges: []
     };
   }
@@ -28,7 +37,6 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
   public render() {
     return (
       <div>
-        <h1>Graph editor</h1>
         <button onClick={this.toggleEdgeMode}>
           {this.state.isEdgeMode ? 'Place nodes' : 'Place edges'}
         </button>
@@ -40,9 +48,46 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
   }
 
   public componentDidMount() {
+    if (this.props.setRef) {this.props.setRef(this)};
     this._svg = SVG('graph_editor').size('100%', 500);
     this.initArrowMarker();
     this.setSvgMouseHandlers(this._svg);
+  }
+
+  public componentWillUnmount() {
+    if (this.props.setRef) {this.props.setRef(undefined)};
+  }
+
+  public setGraph(graph: GraphT<Point2d>) {
+    this.clear();
+    const nodes = graph.get_nodes().map(n => this.createNodeAtSvgCoords(n.x, n.y));
+    const edges = graph.get_edges().map(e => this.createEdge(nodes[e.from], nodes[e.to]));
+    this.setState({nodes, edges});
+  }
+
+  public getGraph(): GraphT<GraphEditorNode> {
+    const graph = new GraphT<GraphEditorNode>();
+    this.addNodesAndEdgesFromEditor(graph);
+    return graph;
+  }
+
+  public getDigraph(): DiGraphT<GraphEditorNode> {
+    const graph = new DiGraphT<GraphEditorNode>();
+    this.addNodesAndEdgesFromEditor(graph);
+    return graph;
+  }
+
+  private addNodesAndEdgesFromEditor(graph: GraphT<GraphEditorNode> | DiGraphT<GraphEditorNode>) {
+    const nodeMap = new Map<GraphEditorNode, number>();
+
+    this.state.nodes.map((node, idx) => {
+      graph.add_node(node);
+      nodeMap.set(node, idx);
+    });
+
+    this.state.edges.map(e =>
+      graph.add_edge(nodeMap.get(e.fromNode)!, nodeMap.get(e.toNode)!)
+    );
   }
 
   private toggleEdgeMode = () => {
@@ -50,6 +95,10 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
   }
 
   private clear = () => {
+    this.setState({
+      nodes: [],
+      edges: []
+    });
     this._svg.clear();
     this.initArrowMarker();
   }
@@ -65,7 +114,8 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
   private setSvgMouseHandlers(svg: SVG.Doc) {
     svg.click((e: MouseEvent) => {
       if (!this.isDragging() && !this.state.isEdgeMode) {
-        this.createNodeAtScreenCoords(e.x, e.y);
+        const node = this.createNodeAtScreenCoords(e.x, e.y);
+        this.state.nodes.push(node);
       }
     });
     svg.on('mouseup', () => {
@@ -81,18 +131,19 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
     }
   }
 
-  private createNodeAtScreenCoords(x: number, y: number) {
+  private createNodeAtScreenCoords(x: number, y: number): GraphEditorNode {
     const p = this.screenToSvg(x, y);
-    this.createNodeAtSvgCoords(p.x, p.y);
+    return this.createNodeAtSvgCoords(p.x, p.y);
   }
 
-  private createNodeAtSvgCoords(x: number, y: number): SVG.Circle {
-    const node = this._svg.circle(20).center(x, y);
+  private createNodeAtSvgCoords(x: number, y: number): GraphEditorNode {
+    const circle = this._svg.circle(20).center(x, y);
+    const node = new GraphEditorNode(circle);
     this.addNodeModeMouseHandlers(node);
     return node;
   }
 
-  private addNodeModeMouseHandlers(node: SVG.Circle) {
+  private addNodeModeMouseHandlers(node: GraphEditorNode) {
     node.on('mousedown', () => {
       if (this.state.isEdgeMode) {
         this.startDrawingEdgeAtNode(node);
@@ -115,9 +166,9 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
     });
   }
 
-  private startDrawingEdgeAtNode(node: SVG.Circle) {
-    const x = node.cx();
-    const y = node.cy();
+  private startDrawingEdgeAtNode(node: GraphEditorNode) {
+    const x = node.x();
+    const y = node.y();
     const line = this.createSvgEdge(x, y, x, y);
 
     const edge = new DrawingEdge(line, node);
@@ -129,7 +180,7 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
     });
   }
 
-  private startDraggingNode(node: SVG.Circle) {
+  private startDraggingNode(node: GraphEditorNode) {
     const edgesStartingAtNode = this.state.edges.filter(e => e.fromNode === node);
     const edgesEndingAtNode = this.state.edges.filter(e => e.toNode === node);
     const draggingNode = new DraggingNode(node, edgesStartingAtNode, edgesEndingAtNode);
@@ -144,17 +195,17 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
     });
   }
 
-  private finishDrawingEdge(node: SVG.Circle) {
+  private finishDrawingEdge(node: GraphEditorNode) {
     const edge = this.state.drawingEdge!;
     // fix end of edge to finish on node's center
-    edge.setEndPos(node.cx(), node.cy());
+    edge.setEndPos(node.x(), node.y());
     this.state.edges.push(Edge.fromDrawingEdge(edge, node));
     this.setState({ drawingEdge: null });
   }
 
-  private createEdge(from: SVG.Circle, to: SVG.Circle) {
-    const line = this.createSvgEdge(from.cx(), from.cy(), to.cx(), to.cy());
-    this.state.edges.push(new Edge(line, from, to));
+  private createEdge(from: GraphEditorNode, to: GraphEditorNode): Edge {
+    const line = this.createSvgEdge(from.x(), from.y(), to.x(), to.y());
+    return new Edge(line, from, to);
   }
 
   private createSvgEdge(x1: number, y1: number, x2: number, y2: number): SVG.Line {
@@ -181,11 +232,7 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
   private generateRandomGraph = () => {
     const bounds = this._svg.viewbox();
     const graph = randomSquareGraph(bounds.height, bounds.width, 30);
-    this.clear();
-    const nodes = graph.get_nodes().map(n => this.createNodeAtSvgCoords(n.x, n.y));
-    for (const edge of graph.get_edges()) {
-      this.createEdge(nodes[edge.from], nodes[edge.to]);
-    }
+    this.setGraph(graph);
   }
 }
 
@@ -193,7 +240,7 @@ export class GraphEditor extends React.Component<{}, IGraphEditorState> {
 class DrawingEdge {
   constructor(
     public svgLine: SVG.Line,
-    public fromNode: SVG.Circle)
+    public fromNode: GraphEditorNode)
   {
   }
 
@@ -209,8 +256,8 @@ class DrawingEdge {
 class Edge {
   constructor(
     public svgLine: SVG.Line,
-    public fromNode: SVG.Circle,
-    public toNode: SVG.Circle)
+    public fromNode: GraphEditorNode,
+    public toNode: GraphEditorNode)
   {
   }
 
@@ -228,7 +275,7 @@ class Edge {
     this.svgLine.plot(x1, y1, x, y);
   }
 
-  public static fromDrawingEdge(edge: DrawingEdge, toNode: SVG.Circle): Edge {
+  public static fromDrawingEdge(edge: DrawingEdge, toNode: GraphEditorNode): Edge {
     return new Edge(edge.svgLine, edge.fromNode, toNode);
   }
 }
@@ -236,7 +283,7 @@ class Edge {
 /** A node while it is being dragged */
 class DraggingNode {
   constructor(
-    public svgNode: SVG.Circle,
+    public node: GraphEditorNode,
     public edgesFrom: Edge[],
     public edgesTo: Edge[]
   )
@@ -244,12 +291,12 @@ class DraggingNode {
 
   /** Move the node to the given svg coords */
   public move(x: number, y: number) {
-    this.svgNode.center(x, y);
+    this.node.setPos(x, y);
     for (const e of this.edgesFrom) {
-      e.setStartPos(this.svgNode.cx(), this.svgNode.cy());
+      e.setStartPos(this.node.x(), this.node.y());
     }
     for (const e of this.edgesTo) {
-      e.setEndPos(this.svgNode.cx(), this.svgNode.cy());
+      e.setEndPos(this.node.x(), this.node.y());
     }
   }
 }

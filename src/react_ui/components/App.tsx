@@ -3,6 +3,7 @@ import { SidebarRouter, ISidebarItem, SidebarItem } from './SidebarRouter';
 import { Hello } from './Hello';
 import { AStar } from './alg_views/search/AStar';
 import { GraphEditor } from './graph_editor/GraphEditor';
+import { NodeOrdererView } from './alg_views/node_orderer/NodeOrdererView';
 
 export function App() {
     return (
@@ -22,6 +23,11 @@ const componentRoutes: ISidebarItem[] = [
         "/graph_editor",
         "Graph editor",
         () => <GraphEditor />
+    ),
+    new SidebarItem(
+        "/node_order",
+        "Node orderer",
+        () => <NodeOrdererView />
     ),
     new SidebarItem(
       "/hello",

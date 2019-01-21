@@ -2,6 +2,15 @@ svg {
     border: solid black;
 }
 
+circle {
+    transition: 1s ease-in-out 0s
+}
+
+circle.highlight {
+    fill: red;
+    transition: 0s ease-in-out 0s
+}
+
 circle:hover {
     stroke: red;
     stroke-width: 3px;
