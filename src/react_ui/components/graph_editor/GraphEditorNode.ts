@@ -3,9 +3,7 @@ import * as SVG from 'svg.js';
 /** Node used by graph editor. All public coordinates are SVG. */
 export class GraphEditorNode {
 
-    public constructor(private _svgNode: SVG.Circle) {
-
-    }
+    public constructor(private _svgNode: SVG.Circle) {}
 
     /** Get the x coordinate of the center of the node */
     public x(): number { return this._svgNode.cx(); }
@@ -21,5 +19,13 @@ export class GraphEditorNode {
     /** Center the node on the given coords */
     public setPos(x: number, y: number) {
         this._svgNode.center(x, y);
+    }
+
+    public setHighlighted(isHighlighted: boolean) {
+        if (isHighlighted) {
+            this._svgNode.addClass("highlight");
+        } else {
+            this._svgNode.removeClass("highlight");
+        }
     }
 }

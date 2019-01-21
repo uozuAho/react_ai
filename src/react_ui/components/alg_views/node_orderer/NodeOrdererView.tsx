@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { GraphEditor } from '../../graph_editor/GraphEditor';
 import { DiGraphT } from 'src/ai_lib/structures/graphT';
-import { Point2d } from 'src/ai_lib/structures/point2d';
 import { TopoSort } from 'src/ai_lib/algorithms/graph/toposort';
+import { GraphEditorNode } from '../../graph_editor/GraphEditorNode';
 
 interface INodeOrdererViewState {
     instructionsText?: string;
@@ -15,7 +15,7 @@ export class NodeOrdererView extends React.Component<any, INodeOrdererViewState>
     // Viewer state is kept separate since react state updates may not occur immediately, and
     // not all viewer state changes require a re-render
     private _viewerState: AlgViewerState;
-    private _originalGraph: DiGraphT<Point2d>;
+    private _originalGraph: DiGraphT<GraphEditorNode>;
 
     constructor(props: any) {
         super(props);
@@ -95,15 +95,14 @@ export class NodeOrdererView extends React.Component<any, INodeOrdererViewState>
 
             const topo = new TopoSort(this._originalGraph);
             const order = Array.from(topo.order());
+            const nodes = this._originalGraph.get_nodes();
 
             let idx = 0;
             this._viewerState.data.timer = setInterval(() => {
                 const prevIdx = idx;
                 if (++idx === order.length) { idx = 0; }
-                // this.svgnodes[prevIdx].highlighted = false;
-                // this.svgnodes[idx].highlighted = true;
-                // tslint:disable-next-line:no-console
-                console.log('yo');
+                nodes[prevIdx].setHighlighted(false);
+                nodes[idx].setHighlighted(true);
             }, 300);
         },
         input => {

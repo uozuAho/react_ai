@@ -65,23 +65,23 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
     this.setState({nodes, edges});
   }
 
-  public getGraph(): GraphT<Point2d> {
-    const graph = new GraphT<Point2d>();
+  public getGraph(): GraphT<GraphEditorNode> {
+    const graph = new GraphT<GraphEditorNode>();
     this.addNodesAndEdgesFromEditor(graph);
     return graph;
   }
 
-  public getDigraph(): DiGraphT<Point2d> {
-    const graph = new DiGraphT<Point2d>();
+  public getDigraph(): DiGraphT<GraphEditorNode> {
+    const graph = new DiGraphT<GraphEditorNode>();
     this.addNodesAndEdgesFromEditor(graph);
     return graph;
   }
 
-  private addNodesAndEdgesFromEditor(graph: GraphT<Point2d> | DiGraphT<Point2d>) {
+  private addNodesAndEdgesFromEditor(graph: GraphT<GraphEditorNode> | DiGraphT<GraphEditorNode>) {
     const nodeMap = new Map<GraphEditorNode, number>();
 
     this.state.nodes.map((node, idx) => {
-      graph.add_node(new Point2d(node.x(), node.y()));
+      graph.add_node(node);
       nodeMap.set(node, idx);
     });
 
