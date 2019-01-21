@@ -29,7 +29,9 @@ export class NodeOrdererView extends React.Component<any, INodeOrdererViewState>
         return (
             <div>
                 <h1>Node orderer</h1>
-                <p>Find node orderings in directed graphs with and without cycles</p>
+                <p>Find node orderings in directed graphs without cycles (topological order).
+                    Orderings in cyclic graphs not yet supported...
+                </p>
                 <p>{this.state.instructionsText}</p>
                 <button onClick={this.onNextClick}>{this.state.nextButtonText}</button>
                 <GraphEditor setRef={this.setEditorRef}/>
@@ -80,6 +82,7 @@ export class NodeOrdererView extends React.Component<any, INodeOrdererViewState>
                     if (new TopoSort(graph).hasOrder()) {
                         return this.showTopoOrderState();
                     } else {
+                        // todo: get orderer from ts ai 2. meh
                         throw new Error('contains cycle. Not supported ... yet');
                     }
                 }
