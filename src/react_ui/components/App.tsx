@@ -4,6 +4,7 @@ import { Hello } from './Hello';
 import { AStar } from './alg_views/search/AStar';
 import { GraphEditor } from './graph_editor/GraphEditor';
 import { NodeOrdererView } from './alg_views/node_orderer/NodeOrdererView';
+import { GraphColoringView } from './alg_views/graph_coloring/GraphColoringView';
 
 export function App() {
     return (
@@ -28,6 +29,11 @@ const componentRoutes: ISidebarItem[] = [
         "/node_order",
         "Node orderer",
         () => <NodeOrdererView />
+    ),
+    new SidebarItem(
+        "/graph_coloring",
+        "Graph coloring",
+        () => <GraphColoringView />
     ),
     new SidebarItem(
       "/hello",

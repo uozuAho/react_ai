@@ -28,4 +28,8 @@ export class GraphEditorNode {
             this._svgNode.removeClass("highlight");
         }
     }
+
+    public setColor(color: string) {
+        this._svgNode.fill(color);
+    }
 }
