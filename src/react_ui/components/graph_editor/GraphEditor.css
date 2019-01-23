@@ -2,6 +2,11 @@ svg {
     border: solid black;
 }
 
+circle {
+    stroke: black;
+    stroke-width: 1;
+}
+
 circle.highlight {
     fill: red;
 }
