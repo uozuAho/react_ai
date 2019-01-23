@@ -8,9 +8,11 @@ import { GraphEditorNode } from './GraphEditorNode';
 interface IGraphEditorProps {
   /** Set a reference to this editor, for use by parent components */
   setRef?: (ref?: GraphEditor) => void;
+  directed?: boolean;
 }
 
 interface IGraphEditorState {
+  isDirected: boolean;
   isEdgeMode: boolean;
   draggingNode: DraggingNode | null;
   drawingEdge: DrawingEdge | null;
@@ -26,6 +28,7 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
   constructor(props: IGraphEditorProps) {
     super(props);
     this.state = {
+      isDirected: Boolean(props.directed),
       isEdgeMode: false,
       draggingNode: null,
       drawingEdge: null,
@@ -211,7 +214,9 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
   private createSvgEdge(x1: number, y1: number, x2: number, y2: number): SVG.Line {
     // send svg lines to the back since hovering over nodes takes precedence
     const line = this._svg.line(x1, y1, x2, y2).back();
-    line.marker('end', this._arrowMarker);
+    if (this.state.isDirected) {
+      line.marker('end', this._arrowMarker);
+    }
     return line;
   }
 
