@@ -1,7 +1,7 @@
 import { IGraph } from 'src/ai_lib/structures/igraph';
 
 /** Basic hill climbing graph colorer. Stops when no neighbours are better than the current state. */
-export class BasicGraphColoringHillClimber {
+export class GraphColoringHillClimber {
 
     private _colors: number[];
     private _graph: IGraph;
