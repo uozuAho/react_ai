@@ -1,4 +1,5 @@
 import { IGraph } from 'src/ai_lib/structures/igraph';
+import * as GraphColoring from './graph_coloring';
 
 /** Try all combinations of 1, 2, 3, ... k colors until a valid solution is found.
  *  Note that finding a solution takes exponential time in (n, e) (probably, or worse?),
@@ -24,7 +25,7 @@ export class GraphColoringBruteForcer {
         const num_nodes = this._graph.num_nodes();
         for (let num_colors = 2; num_colors < 36; num_colors++) {
             for (const coloring of this.allColorings(num_nodes, num_colors)) {
-                if (this.is_valid_coloring(this._graph, coloring)) {
+                if (GraphColoring.isValid(this._graph, coloring)) {
                     this._colors = coloring;
                     return;
                 }
@@ -42,11 +43,14 @@ export class GraphColoringBruteForcer {
         }
     }
 
+    /** Enumerate all possible colorings, leverageing toString(radix): This way
+     *  each character of the string represents the color of a node.
+     */
     private* allColoringsAsStrings(num_nodes: number, num_colors: number): IterableIterator<string> {
-        const max_combos = num_colors**num_nodes;
+        const total_possible_colorings = num_colors**num_nodes;
         const radix = num_colors;
 
-        for (let i = 0; i < max_combos; i++) {
+        for (let i = 0; i < total_possible_colorings; i++) {
             const str = i.toString(radix);
             yield this.zeroLeftPad(str, num_nodes);
         }
@@ -62,19 +66,5 @@ export class GraphColoringBruteForcer {
             return c.charCodeAt(0) - 48;
         }
         return c.charCodeAt(0) - 87;
-    }
-
-    private is_valid_coloring(graph: IGraph, colors: number[]): boolean {
-        const num_nodes = graph.num_nodes();
-        for (let node = 0; node < num_nodes; node++) {
-            const this_color = colors[node];
-            for (const adj of graph.adjacent(node)) {
-                const neighbour_color = colors[adj.other(node)];
-                if (neighbour_color === this_color) {
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 }
