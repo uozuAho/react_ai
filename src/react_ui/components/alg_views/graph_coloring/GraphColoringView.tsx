@@ -49,7 +49,8 @@ export class GraphColoringView extends React.Component<any, IGraphColoringViewSt
             throw new Error("colors array length != number of nodes");
         }
         for (let i = 0; i < colors.length; i++) {
-            nodes[i].setColor(css_color_names[i]);
+            const color = colors[i];
+            nodes[i].setColor(css_color_names[color]);
         }
     }
 
@@ -156,6 +157,15 @@ class BasicGraphColoringHillClimber {
 
 // color names grabbed from https://www.w3schools.com/colors/colors_names.asp
 const css_color_names = [
+'White',
+'Black',
+'Red',
+'Green',
+'Blue',
+'Orange',
+'Yellow',
+'Pink',
+'Purple',
 'AliceBlue',
 'AntiqueWhite',
 'Aqua',
@@ -163,9 +173,7 @@ const css_color_names = [
 'Azure',
 'Beige',
 'Bisque',
-'Black',
 'BlanchedAlmond',
-'Blue',
 'BlueViolet',
 'Brown',
 'BurlyWood',
@@ -211,7 +219,6 @@ const css_color_names = [
 'GoldenRod',
 'Gray',
 'Grey',
-'Green',
 'GreenYellow',
 'HoneyDew',
 'HotPink',
@@ -261,7 +268,6 @@ const css_color_names = [
 'OldLace',
 'Olive',
 'OliveDrab',
-'Orange',
 'OrangeRed',
 'Orchid',
 'PaleGoldenRod',
@@ -271,12 +277,9 @@ const css_color_names = [
 'PapayaWhip',
 'PeachPuff',
 'Peru',
-'Pink',
 'Plum',
 'PowderBlue',
-'Purple',
 'RebeccaPurple',
-'Red',
 'RosyBrown',
 'RoyalBlue',
 'SaddleBrown',
@@ -300,8 +303,6 @@ const css_color_names = [
 'Turquoise',
 'Violet',
 'Wheat',
-'White',
 'WhiteSmoke',
-'Yellow',
 'YellowGreen'
 ];
