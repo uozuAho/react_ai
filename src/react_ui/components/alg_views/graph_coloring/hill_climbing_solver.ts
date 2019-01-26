@@ -1,7 +1,8 @@
 import { IGraph } from 'src/ai_lib/structures/igraph';
+import * as GraphColoring from './graph_coloring';
 
 /** Basic hill climbing graph colorer. Stops when no neighbours are better than the current state. */
-export class BasicGraphColoringHillClimber {
+export class GraphColoringHillClimber {
 
     private _colors: number[];
     private _graph: IGraph;
@@ -11,7 +12,7 @@ export class BasicGraphColoringHillClimber {
      * @param initial_colors initial node colors. NOTE: this must be a valid coloring (todo: relax this later)
      */
     constructor(graph: IGraph, initial_colors: number[]) {
-        if (!this.is_valid_coloring(graph, initial_colors)) {
+        if (!GraphColoring.isValid(graph, initial_colors)) {
             throw new Error('only valid initial colorings supported');
         }
         this._graph = graph;
@@ -48,7 +49,7 @@ export class BasicGraphColoringHillClimber {
             const neighbour_colors = this._colors.slice();
             for (let color = 0; color < num_colors; color++) {
                 neighbour_colors[node] = color;
-                if (this.is_valid_coloring(this._graph, neighbour_colors) &&
+                if (GraphColoring.isValid(this._graph, neighbour_colors) &&
                     this.is_better_than(neighbour_colors, this._colors)) {
                     return neighbour_colors;
                 }
@@ -62,19 +63,5 @@ export class BasicGraphColoringHillClimber {
      */
     private is_better_than(colors1: number[], colors2: number[]): boolean {
         return new Set(colors1).size < new Set(colors2).size;
-    }
-
-    private is_valid_coloring(graph: IGraph, colors: number[]): boolean {
-        const num_nodes = graph.num_nodes();
-        for (let node = 0; node < num_nodes; node++) {
-            const this_color = colors[node];
-            for (const adj of graph.adjacent(node)) {
-                const neighbour_color = colors[adj.other(node)];
-                if (neighbour_color === this_color) {
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 }
