@@ -3,12 +3,12 @@ svg {
 }
 
 circle {
-    transition: 1s ease-in-out 0s
+    stroke: black;
+    stroke-width: 1;
 }
 
 circle.highlight {
     fill: red;
-    transition: 0s ease-in-out 0s
 }
 
 circle:hover {
