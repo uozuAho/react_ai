@@ -44,7 +44,7 @@ export class RandomParametersModal extends React.Component<IRandomParametersModa
                 <br />
                 <label>
                     Connect within distance:
-                    <input value={this.state.connect_within_distance} onChange={this.onMinDistanceChange} />
+                    <input value={this.state.connect_within_distance} onChange={this.onConnectDistanceChange} />
                 </label>
                 <button onClick={this.onClose}>OK</button>
             </Modal>
@@ -54,7 +54,7 @@ export class RandomParametersModal extends React.Component<IRandomParametersModa
     private onNumNodesChange = (e: React.ChangeEvent<HTMLInputElement>) =>
         this.setState({num_nodes: e.target.value});
 
-    private onMinDistanceChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    private onConnectDistanceChange = (e: React.ChangeEvent<HTMLInputElement>) =>
         this.setState({connect_within_distance: e.target.value});
 
     private onClose = () => {
