@@ -138,12 +138,19 @@ export class EdgeT<T> {
  *  square of given height and width. Edges are created between nodes within a certain distance
  *  of each other
  */
-export function randomSquareGraph(height: number, width: number, totalNodes: number): GraphT<Point2d> {
+export function randomSquareGraph(
+    height: number,
+    width: number,
+    totalNodes: number,
+    connectNodesWithinDistance?: number): GraphT<Point2d> {
+
     const graph = new GraphT<Point2d>();
     for (let i = 0; i < totalNodes; i++) {
         graph.add_node(new Point2d(Math.random() * width, Math.random() * height));
     }
-    const minDistance2 = 1.6 * height * width / totalNodes;
+    const minDistance2 = connectNodesWithinDistance
+        ? connectNodesWithinDistance**2
+        : 1.6 * height * width / totalNodes;
 
     const nodes = graph.get_nodes();
 

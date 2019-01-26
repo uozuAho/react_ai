@@ -4,6 +4,7 @@ import * as SVG from 'svg.js';
 import { randomSquareGraph, DiGraphT, GraphT } from 'src/ai_lib/structures/graphT';
 import { Point2d } from 'src/ai_lib/structures/point2d';
 import { GraphEditorNode } from './GraphEditorNode';
+import { RandomParametersModal, RandomParameters } from './RandomParametersModal';
 
 interface IGraphEditorProps {
   /** Set a reference to this editor, for use by parent components */
@@ -17,7 +18,8 @@ interface IGraphEditorState {
   draggingNode: DraggingNode | null;
   drawingEdge: DrawingEdge | null;
   nodes: GraphEditorNode[];
-  edges: Edge[]
+  edges: Edge[];
+  randomGenModalIsOpen: boolean;
 }
 
 export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditorState> {
@@ -33,8 +35,16 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
       draggingNode: null,
       drawingEdge: null,
       nodes: [],
-      edges: []
+      edges: [],
+      randomGenModalIsOpen: false
     };
+  }
+
+  private openRandomGenModal = () => this.setState({randomGenModalIsOpen: true});
+
+  private closeRandomGenModal = (params: RandomParameters) => {
+    this.setState({randomGenModalIsOpen: false});
+    this.generateRandomGraph(params);
   }
 
   public render() {
@@ -44,7 +54,12 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
           {this.state.isEdgeMode ? 'Place nodes' : 'Place edges'}
         </button>
         <button onClick={this.clear}>Clear</button>
-        <button onClick={this.generateRandomGraph}>Random</button>
+        <button onClick={this.openRandomGenModal}>Random</button>
+
+        <RandomParametersModal
+          isOpen={this.state.randomGenModalIsOpen}
+          onClose={this.closeRandomGenModal} />
+
         <div id="graph_editor" />
       </div>
     );
@@ -234,9 +249,9 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
     return this.state.draggingNode !== null;
   }
 
-  private generateRandomGraph = () => {
+  private generateRandomGraph = (params: RandomParameters) => {
     const bounds = this._svg.viewbox();
-    const graph = randomSquareGraph(bounds.height, bounds.width, 30);
+    const graph = randomSquareGraph(bounds.height, bounds.width, params.num_nodes, params.connect_within_distance);
     this.setGraph(graph);
   }
 }
