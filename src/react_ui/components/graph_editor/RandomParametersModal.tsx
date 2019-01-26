@@ -22,7 +22,8 @@ export class RandomParametersModal extends React.Component<IRandomParametersModa
                 isOpen={this.props.isOpen}
                 onRequestClose={this.onClose}
                 style={customStyles}
-                contentLabel="Random graph params modal">
+                contentLabel="Random graph params modal"
+                ariaHideApp={false}>
 
                 <div>Generate random graph</div>
                 <button onClick={this.onClose}>OK</button>
