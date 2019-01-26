@@ -10,10 +10,17 @@ interface IRandomParametersModalProps {
     onClose: (params: RandomParameters) => void;
 }
 
-export class RandomParametersModal extends React.Component<IRandomParametersModalProps> {
+interface IRandomParametersModalState {
+    value: string;
+}
+
+export class RandomParametersModal extends React.Component<IRandomParametersModalProps, IRandomParametersModalState> {
 
     constructor(props: IRandomParametersModalProps) {
         super(props);
+        this.state = {
+            value: '20'
+        };
     }
 
     public render() {
@@ -26,13 +33,24 @@ export class RandomParametersModal extends React.Component<IRandomParametersModa
                 ariaHideApp={false}>
 
                 <div>Generate random graph</div>
+                <label>
+                    Number of nodes:
+                    <input value={this.state.value} onChange={this.handleChange} />
+                </label>
                 <button onClick={this.onClose}>OK</button>
             </Modal>
         );
     }
 
+    private handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        this.setState({
+            value: e.target.value
+        });
+    }
+
     private onClose = () => {
-        const params = new RandomParameters(30);
+        const num_nodes = parseInt(this.state.value, 10);
+        const params = new RandomParameters(num_nodes);
         this.props.onClose(params);
     }
 }
