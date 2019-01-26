@@ -19,7 +19,7 @@ interface IGraphEditorState {
   drawingEdge: DrawingEdge | null;
   nodes: GraphEditorNode[];
   edges: Edge[];
-  modalIsOpen: boolean;
+  randomGenModalIsOpen: boolean;
 }
 
 export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditorState> {
@@ -36,16 +36,15 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
       drawingEdge: null,
       nodes: [],
       edges: [],
-      modalIsOpen: false
+      randomGenModalIsOpen: false
     };
   }
 
-  private openModal = () => this.setState({modalIsOpen: true});
+  private openRandomGenModal = () => this.setState({randomGenModalIsOpen: true});
 
-  private closeModal = (params: RandomParameters) => {
-    this.setState({modalIsOpen: false});
-    // tslint:disable-next-line:no-console
-    console.log(`closing modal. got value ${params.value}.`);
+  private closeRandomGenModal = (params: RandomParameters) => {
+    this.setState({randomGenModalIsOpen: false});
+    this.generateRandomGraph(params);
   }
 
   public render() {
@@ -55,9 +54,12 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
           {this.state.isEdgeMode ? 'Place nodes' : 'Place edges'}
         </button>
         <button onClick={this.clear}>Clear</button>
-        <button onClick={this.generateRandomGraph}>Random</button>
-        <button onClick={this.openModal}>Open Modal</button>
-        <RandomParametersModal isOpen={this.state.modalIsOpen} onClose={this.closeModal} />
+        <button onClick={this.openRandomGenModal}>Random</button>
+
+        <RandomParametersModal
+          isOpen={this.state.randomGenModalIsOpen}
+          onClose={this.closeRandomGenModal} />
+
         <div id="graph_editor" />
       </div>
     );
@@ -247,9 +249,9 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
     return this.state.draggingNode !== null;
   }
 
-  private generateRandomGraph = () => {
+  private generateRandomGraph = (params: RandomParameters) => {
     const bounds = this._svg.viewbox();
-    const graph = randomSquareGraph(bounds.height, bounds.width, 30);
+    const graph = randomSquareGraph(bounds.height, bounds.width, params.num_nodes);
     this.setGraph(graph);
   }
 }

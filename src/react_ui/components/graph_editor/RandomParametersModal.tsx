@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as Modal from 'react-modal';
 
 export class RandomParameters {
-    constructor(public value: number) {}
+    constructor(public num_nodes: number) {}
 }
 
 interface IRandomParametersModalProps {
@@ -22,18 +22,10 @@ export class RandomParametersModal extends React.Component<IRandomParametersModa
                 isOpen={this.props.isOpen}
                 onRequestClose={this.onClose}
                 style={customStyles}
-                contentLabel="Example Modal"
-            >
+                contentLabel="Random graph params modal">
 
-                <button onClick={this.onClose}>close</button>
-                <div>I am a modal</div>
-                <form>
-                    <input />
-                    <button>tab navigation</button>
-                    <button>stays</button>
-                    <button>inside</button>
-                    <button>the modal</button>
-                </form>
+                <div>Generate random graph</div>
+                <button onClick={this.onClose}>OK</button>
             </Modal>
         );
     }
