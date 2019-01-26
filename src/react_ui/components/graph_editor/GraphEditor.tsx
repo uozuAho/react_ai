@@ -4,6 +4,18 @@ import * as SVG from 'svg.js';
 import { randomSquareGraph, DiGraphT, GraphT } from 'src/ai_lib/structures/graphT';
 import { Point2d } from 'src/ai_lib/structures/point2d';
 import { GraphEditorNode } from './GraphEditorNode';
+import * as Modal from 'react-modal';
+
+const customStyles = {
+  content : {
+    top                   : '50%',
+    left                  : '50%',
+    right                 : 'auto',
+    bottom                : 'auto',
+    marginRight           : '-50%',
+    transform             : 'translate(-50%, -50%)'
+  }
+};
 
 interface IGraphEditorProps {
   /** Set a reference to this editor, for use by parent components */
@@ -17,7 +29,8 @@ interface IGraphEditorState {
   draggingNode: DraggingNode | null;
   drawingEdge: DrawingEdge | null;
   nodes: GraphEditorNode[];
-  edges: Edge[]
+  edges: Edge[];
+  modalIsOpen: boolean;
 }
 
 export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditorState> {
@@ -33,8 +46,19 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
       draggingNode: null,
       drawingEdge: null,
       nodes: [],
-      edges: []
+      edges: [],
+      modalIsOpen: false
     };
+    this.openModal = this.openModal.bind(this);
+    this.closeModal = this.closeModal.bind(this);
+  }
+
+  private openModal() {
+    this.setState({modalIsOpen: true});
+  }
+
+  private closeModal() {
+    this.setState({modalIsOpen: false});
   }
 
   public render() {
@@ -45,6 +69,24 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
         </button>
         <button onClick={this.clear}>Clear</button>
         <button onClick={this.generateRandomGraph}>Random</button>
+        <button onClick={this.openModal}>Open Modal</button>
+        <Modal
+          isOpen={this.state.modalIsOpen}
+          onRequestClose={this.closeModal}
+          style={customStyles}
+          contentLabel="Example Modal"
+        >
+
+          <button onClick={this.closeModal}>close</button>
+          <div>I am a modal</div>
+          <form>
+            <input />
+            <button>tab navigation</button>
+            <button>stays</button>
+            <button>inside</button>
+            <button>the modal</button>
+          </form>
+        </Modal>
         <div id="graph_editor" />
       </div>
     );
