@@ -9,6 +9,12 @@ import { GraphColoringBruteForcer } from './brute_force_solver';
 interface IGraphColoringViewState {
     num_nodes: number;
     num_colors: number;
+    solver: SolverType;
+}
+
+enum SolverType {
+    brute_force,
+    hill_climbing
 }
 
 export class GraphColoringView extends React.Component<any, IGraphColoringViewState> {
@@ -20,7 +26,8 @@ export class GraphColoringView extends React.Component<any, IGraphColoringViewSt
         super(props);
         this.state = {
             num_nodes: 0,
-            num_colors: 0
+            num_colors: 0,
+            solver: SolverType.hill_climbing
         };
     }
 
@@ -28,11 +35,26 @@ export class GraphColoringView extends React.Component<any, IGraphColoringViewSt
         return (
             <div>
                 <h1>Graph coloring</h1>
-                <button onClick={this.findColoring}>Find coloring</button>
+
+                <label>
+                    Select solver:
+                    <select value={this.state.solver} onChange={this.onSolverChanged}>
+                        <option value={SolverType.brute_force}>Brute force (slow!)</option>
+                        <option value={SolverType.hill_climbing}>Hill climbing</option>
+                    </select>
+                </label>
+
+                <button onClick={this.findColoring}>Run solver</button>
                 <h2>Nodes: {this.state.num_nodes}, colors: {this.state.num_colors}</h2>
                 <GraphEditor setRef={this.setEditorRef}/>
             </div>
         );
+    }
+
+    private onSolverChanged = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        // tslint:disable-next-line:no-console
+        // console.log(e.target.value);
+        this.setState({solver: parseInt(e.target.value, 10) as SolverType});
     }
 
     private findColoring = () => {
@@ -40,8 +62,16 @@ export class GraphColoringView extends React.Component<any, IGraphColoringViewSt
         this.setState({
             num_nodes: this._graphToColor.num_nodes(),
         });
-        // this.solveWithHillClimbing();
-        this.solveWithBruteForce();
+        switch (this.state.solver) {
+            case SolverType.brute_force:
+                this.solveWithBruteForce();
+                break;
+            case SolverType.hill_climbing:
+                this.solveWithHillClimbing();
+                break;
+            default:
+                break;
+        }
     }
 
     private setEditorRef = (ref: GraphEditor) => {
