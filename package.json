@@ -3,9 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@types/file-saver": "^2.0.0",
     "@types/react-modal": "^3.8.0",
     "@types/react-redux": "^6.0.9",
     "edmonds-blossom": "^1.0.0",
+    "file-saver": "^2.0.0",
     "react": "^16.6.1",
     "react-dom": "^16.6.1",
     "react-modal": "^3.8.1",
