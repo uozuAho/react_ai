@@ -251,7 +251,7 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
 
   private generateRandomGraph = (params: RandomParameters) => {
     const bounds = this._svg.viewbox();
-    const graph = randomSquareGraph(bounds.height, bounds.width, params.num_nodes);
+    const graph = randomSquareGraph(bounds.height, bounds.width, params.num_nodes, params.connect_within_distance);
     this.setGraph(graph);
   }
 }
