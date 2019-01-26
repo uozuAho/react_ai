@@ -1,9 +1,13 @@
 import * as React from 'react';
 import * as Modal from 'react-modal';
 
+export class RandomParameters {
+    constructor(public value: number) {}
+}
+
 interface IRandomParametersModalProps {
     isOpen: boolean;
-    onClose: () => void;
+    onClose: (params: RandomParameters) => void;
 }
 
 export class RandomParametersModal extends React.Component<IRandomParametersModalProps> {
@@ -16,12 +20,12 @@ export class RandomParametersModal extends React.Component<IRandomParametersModa
         return (
             <Modal
                 isOpen={this.props.isOpen}
-                onRequestClose={this.props.onClose}
+                onRequestClose={this.onClose}
                 style={customStyles}
                 contentLabel="Example Modal"
             >
 
-                <button onClick={this.props.onClose}>close</button>
+                <button onClick={this.onClose}>close</button>
                 <div>I am a modal</div>
                 <form>
                     <input />
@@ -32,6 +36,11 @@ export class RandomParametersModal extends React.Component<IRandomParametersModa
                 </form>
             </Modal>
         );
+    }
+
+    private onClose = () => {
+        const params = new RandomParameters(30);
+        this.props.onClose(params);
     }
 }
 

@@ -4,7 +4,7 @@ import * as SVG from 'svg.js';
 import { randomSquareGraph, DiGraphT, GraphT } from 'src/ai_lib/structures/graphT';
 import { Point2d } from 'src/ai_lib/structures/point2d';
 import { GraphEditorNode } from './GraphEditorNode';
-import { RandomParametersModal } from './RandomParametersModal';
+import { RandomParametersModal, RandomParameters } from './RandomParametersModal';
 
 interface IGraphEditorProps {
   /** Set a reference to this editor, for use by parent components */
@@ -42,7 +42,11 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
 
   private openModal = () => this.setState({modalIsOpen: true});
 
-  private closeModal = () => this.setState({modalIsOpen: false});
+  private closeModal = (params: RandomParameters) => {
+    this.setState({modalIsOpen: false});
+    // tslint:disable-next-line:no-console
+    console.log(`closing modal. got value ${params.value}.`);
+  }
 
   public render() {
     return (
