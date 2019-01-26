@@ -5,17 +5,7 @@ import { randomSquareGraph, DiGraphT, GraphT } from 'src/ai_lib/structures/graph
 import { Point2d } from 'src/ai_lib/structures/point2d';
 import { GraphEditorNode } from './GraphEditorNode';
 import * as Modal from 'react-modal';
-
-const customStyles = {
-  content : {
-    top                   : '50%',
-    left                  : '50%',
-    right                 : 'auto',
-    bottom                : 'auto',
-    marginRight           : '-50%',
-    transform             : 'translate(-50%, -50%)'
-  }
-};
+import { RandomParametersModal } from './RandomParametersModal';
 
 interface IGraphEditorProps {
   /** Set a reference to this editor, for use by parent components */
@@ -70,23 +60,7 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
         <button onClick={this.clear}>Clear</button>
         <button onClick={this.generateRandomGraph}>Random</button>
         <button onClick={this.openModal}>Open Modal</button>
-        <Modal
-          isOpen={this.state.modalIsOpen}
-          onRequestClose={this.closeModal}
-          style={customStyles}
-          contentLabel="Example Modal"
-        >
-
-          <button onClick={this.closeModal}>close</button>
-          <div>I am a modal</div>
-          <form>
-            <input />
-            <button>tab navigation</button>
-            <button>stays</button>
-            <button>inside</button>
-            <button>the modal</button>
-          </form>
-        </Modal>
+        <RandomParametersModal isOpen={this.state.modalIsOpen} onClose={this.closeModal} />
         <div id="graph_editor" />
       </div>
     );
