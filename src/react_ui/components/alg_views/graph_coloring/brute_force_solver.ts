@@ -22,11 +22,31 @@ export class GraphColoringBruteForcer {
             return this._colors;
         }
 
+        let num_colorings_tried = 0;
+        const start = new Date().getTime();
         const num_nodes = this._graph.num_nodes();
         for (let num_colors = 2; num_colors < 36; num_colors++) {
+            const numColorings = num_colors ** num_nodes;
+            let now = new Date().getTime() - start;
+            // tslint:disable-next-line:no-console
+            console.log(`${now}: no ${num_colors - 1}-coloring. Trying all ${numColorings} possible ${num_colors}-colorings.`);
             for (const coloring of this.allColorings(num_nodes, num_colors)) {
+                num_colorings_tried++;
+                now = new Date().getTime() - start;
+                if (now > 10000) {
+                    // tslint:disable-next-line:no-console
+                    console.log('no valid colorings found in 10s');
+                    // tslint:disable-next-line:no-console
+                    console.log(`avg ${(num_colorings_tried * 1000) / now} colorings / sec`);
+                    return;
+                }
                 if (GraphColoring.isValid(this._graph, coloring)) {
                     this._colors = coloring;
+                    now = new Date().getTime() - start;
+                    // tslint:disable-next-line:no-console
+                    console.log(`found ${num_colors}-coloring in ${now} ms`);
+                    // tslint:disable-next-line:no-console
+                    console.log(`avg ${(num_colorings_tried * 1000) / now} colorings / sec`);
                     return;
                 }
             }
@@ -37,9 +57,13 @@ export class GraphColoringBruteForcer {
     }
 
     private* allColorings(num_nodes: number, num_colors: number): IterableIterator<number[]> {
+        const arr = Array(num_nodes).fill(0);
         for (const coloring_string of this.allColoringsAsStrings(num_nodes, num_colors)) {
-            const coloring_chars = Array.from(coloring_string);
-            yield coloring_chars.map(c => this.charToColor(c));
+            let idx = num_nodes;
+            while (idx--) {
+                arr[idx] = coloring_string.charAt(idx);
+            }
+            yield arr;
         }
     }
 
