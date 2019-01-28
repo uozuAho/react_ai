@@ -22,11 +22,31 @@ export class GraphColoringBruteForcer {
             return this._colors;
         }
 
+        let num_colorings_tried = 0;
+        const start = new Date().getTime();
         const num_nodes = this._graph.num_nodes();
         for (let num_colors = 2; num_colors < 36; num_colors++) {
+            const numColorings = num_colors ** num_nodes;
+            let now = new Date().getTime() - start;
+            // tslint:disable-next-line:no-console
+            console.log(`${now}: no ${num_colors - 1}-coloring. Trying all ${numColorings} possible ${num_colors}-colorings.`);
             for (const coloring of this.allColorings(num_nodes, num_colors)) {
+                num_colorings_tried++;
+                now = new Date().getTime() - start;
+                if (now > 10000) {
+                    // tslint:disable-next-line:no-console
+                    console.log('no valid colorings found in 10s');
+                    // tslint:disable-next-line:no-console
+                    console.log(`avg ${(num_colorings_tried * 1000) / now} colorings / sec`);
+                    return;
+                }
                 if (GraphColoring.isValid(this._graph, coloring)) {
                     this._colors = coloring;
+                    now = new Date().getTime() - start;
+                    // tslint:disable-next-line:no-console
+                    console.log(`found ${num_colors}-coloring in ${now} ms`);
+                    // tslint:disable-next-line:no-console
+                    console.log(`avg ${(num_colorings_tried * 1000) / now} colorings / sec`);
                     return;
                 }
             }
@@ -37,34 +57,31 @@ export class GraphColoringBruteForcer {
     }
 
     private* allColorings(num_nodes: number, num_colors: number): IterableIterator<number[]> {
-        for (const coloring_string of this.allColoringsAsStrings(num_nodes, num_colors)) {
-            const coloring_chars = Array.from(coloring_string);
-            yield coloring_chars.map(c => this.charToColor(c));
-        }
-    }
-
-    /** Enumerate all possible colorings, leverageing toString(radix): This way
-     *  each character of the string represents the color of a node.
-     */
-    private* allColoringsAsStrings(num_nodes: number, num_colors: number): IterableIterator<string> {
-        const total_possible_colorings = num_colors**num_nodes;
+        const total_possible_colorings = num_colors ** num_nodes;
         const radix = num_colors;
 
+        // use an array as a radix-n counter, yield all countable values
+        const colors: number[] = Array(num_nodes).fill(0);
+
+        let max_reached = false;
+        const increment = (idx: number) => {
+            if (idx === colors.length) {
+                max_reached = true;
+                return;
+            }
+            colors[idx]++;
+            if (colors[idx] === radix) {
+                colors[idx] = 0;
+                increment(idx + 1);
+            }
+        }
+
         for (let i = 0; i < total_possible_colorings; i++) {
-            const str = i.toString(radix);
-            yield this.zeroLeftPad(str, num_nodes);
+            yield colors;
+            increment(0);
+            if (max_reached) {
+                break;
+            }
         }
-    }
-
-    private zeroLeftPad(str: string, size: number) {
-        const s = "00000000000000000000000000000000000000000000" + str;
-        return s.substr(s.length - size);
-    }
-
-    private charToColor(c: string): number {
-        if (c < 'a') {
-            return c.charCodeAt(0) - 48;
-        }
-        return c.charCodeAt(0) - 87;
     }
 }
