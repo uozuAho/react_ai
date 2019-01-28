@@ -1,4 +1,4 @@
-import * as IterUtils from "./iter_utils";
+import { IterUtils } from "./iter_utils";
 
 describe('iter_utils', () => {
     describe('range', () => {

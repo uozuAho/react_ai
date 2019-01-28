@@ -7,7 +7,7 @@ import { GraphEditorNode } from './GraphEditorNode';
 import { RandomParametersModal, RandomParameters } from './RandomParametersModal';
 import { GraphFile } from './graph_file';
 import * as graph_3k8n from 'src/react_ui/data/graph/graph_3k8n.json';
-import * as IterUtils from "../../../libs/array/iter_utils";
+import { IterUtils } from "../../../libs/array/iter_utils";
 import { GraphScaler } from './graph_scaler';
 
 interface IGraphEditorProps {

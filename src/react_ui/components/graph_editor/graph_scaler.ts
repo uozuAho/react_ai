@@ -1,6 +1,6 @@
 import { GraphT } from 'src/ai_lib/structures/graphT';
 import { Point2d } from 'src/ai_lib/structures/point2d';
-import * as IterUtils from "../../../libs/array/iter_utils";
+import { IterUtils } from "../../../libs/array/iter_utils";
 import { ScaleTranslateMatrix2d, IRect } from 'src/libs/matrix/scale_translate_matrix_2d';
 
 export interface IBounds {

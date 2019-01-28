@@ -3,5 +3,4 @@ react.
 
 load:
 - maintain aspect ratio on scale
-- iterutils name export
 - clean up

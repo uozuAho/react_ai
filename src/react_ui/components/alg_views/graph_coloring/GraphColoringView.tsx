@@ -3,7 +3,7 @@ import { GraphEditor } from '../../graph_editor/GraphEditor';
 import { GraphEditorNode } from '../../graph_editor/GraphEditorNode';
 import { GraphT } from 'src/ai_lib/structures/graphT';
 import { GraphColoringHillClimber } from './hill_climbing_solver';
-import * as IterUtils from 'src/libs/array/iter_utils';
+import { IterUtils } from 'src/libs/array/iter_utils';
 import { GraphColoringBruteForcer } from './brute_force_solver';
 
 interface IGraphColoringViewState {
