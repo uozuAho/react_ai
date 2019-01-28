@@ -6,6 +6,7 @@ import { Point2d } from 'src/ai_lib/structures/point2d';
 import { GraphEditorNode } from './GraphEditorNode';
 import { RandomParametersModal, RandomParameters } from './RandomParametersModal';
 import * as fileio from './file_io';
+import { graph_3k8n } from 'src/react_ui/data/graph/graph_3k8n';
 
 interface IGraphEditorProps {
   /** Set a reference to this editor, for use by parent components */
@@ -27,6 +28,10 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
 
   private _svg: SVG.Doc;
   private _arrowMarker: SVG.Marker;
+  private _loadGraphOptions = {
+    'Load a graph...': null,
+    graph_3k8n: fileio.GraphFile.clone(graph_3k8n as fileio.GraphFile)
+  }
 
   constructor(props: IGraphEditorProps) {
     super(props);
@@ -41,18 +46,6 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
     };
   }
 
-  private openRandomGenModal = () => this.setState({randomGenModalIsOpen: true});
-
-  private closeRandomGenModal = (params: RandomParameters) => {
-    this.setState({randomGenModalIsOpen: false});
-    this.generateRandomGraph(params);
-  }
-
-  private saveToFile = () => {
-    const graph = this.getGraph();
-    fileio.saveToFile(graph);
-  }
-
   public render() {
     return (
       <div>
@@ -62,6 +55,14 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
         <button onClick={this.clear}>Clear</button>
         <button onClick={this.openRandomGenModal}>Random</button>
         <button onClick={this.saveToFile}>Save</button>
+        <label>
+          Load:
+          <select name="saved_graphs" onChange={this.onSelectGraphChange}>
+            {Object.keys(this._loadGraphOptions).map(g =>
+              <option key={g} value={g}>{g}</option>
+            )};
+          </select>
+        </label>
 
         <RandomParametersModal
           isOpen={this.state.randomGenModalIsOpen}
@@ -113,6 +114,31 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
     this.state.edges.map(e =>
       graph.add_edge(nodeMap.get(e.fromNode)!, nodeMap.get(e.toNode)!)
     );
+  }
+
+  private openRandomGenModal = () => this.setState({randomGenModalIsOpen: true});
+
+  private closeRandomGenModal = (params: RandomParameters) => {
+    this.setState({randomGenModalIsOpen: false});
+    this.generateRandomGraph(params);
+  }
+
+  private saveToFile = () => {
+    const graph = this.getGraph();
+    fileio.saveToFile(graph);
+  }
+
+  private onSelectGraphChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const name = e.target.value;
+    const graphModel = this._loadGraphOptions[name];
+    if (graphModel !== null) {
+      this.loadGraphFile(graphModel as fileio.GraphFile)
+    };
+  }
+
+  private loadGraphFile(fileModel: fileio.GraphFile) {
+    const graph = fileModel.to2dGraph();
+    this.setGraph(graph);
   }
 
   private toggleEdgeMode = () => {

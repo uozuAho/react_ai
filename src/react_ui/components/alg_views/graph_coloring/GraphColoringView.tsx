@@ -3,7 +3,7 @@ import { GraphEditor } from '../../graph_editor/GraphEditor';
 import { GraphEditorNode } from '../../graph_editor/GraphEditorNode';
 import { GraphT } from 'src/ai_lib/structures/graphT';
 import { GraphColoringHillClimber } from './hill_climbing_solver';
-import * as ArrayUtils from 'src/libs/array/array_utils';
+import * as IterUtils from 'src/libs/array/iter_utils';
 import { GraphColoringBruteForcer } from './brute_force_solver';
 
 interface IGraphColoringViewState {
@@ -91,7 +91,7 @@ export class GraphColoringView extends React.Component<any, IGraphColoringViewSt
 
     private solveWithHillClimbing() {
         const graph = this._graphToColor;
-        const initial_colors = Array.from(ArrayUtils.range(graph.num_nodes()))
+        const initial_colors = Array.from(IterUtils.range(graph.num_nodes()))
         const solver = new GraphColoringHillClimber(graph, initial_colors);
         const solution = solver.get_colors();
         this.setNodeColors(solution);
