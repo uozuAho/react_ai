@@ -1,6 +1,11 @@
 import { IHashable } from './hash_set';
 
-export class Point2d implements IHashable {
+export interface IPoint2d {
+    x: number;
+    y: number;
+}
+
+export class Point2d implements IHashable, IPoint2d {
     public x: number;
     public y: number;
 

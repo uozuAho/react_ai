@@ -21,6 +21,10 @@ export function max<T>(itr: Iterable<T>, compare?: (a: T, b: T) => number): T {
     return chooseWithChooser(itr, (a, b) => comparer(a, b) < 0 ? b : a);
 }
 
+export function any<T>(itr: Iterable<T>, predicate: (t: T) => boolean): boolean {
+    return firstOrNull(itr, predicate) !== null;
+}
+
 function chooseWithChooser<T>(itr: Iterable<T>, choose: (a: T, b: T) => T): T {
     let current: T | null = null;
 

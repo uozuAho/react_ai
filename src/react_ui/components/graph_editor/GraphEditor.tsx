@@ -2,11 +2,13 @@ import * as React from 'react';
 import './GraphEditor.css';
 import * as SVG from 'svg.js';
 import { randomSquareGraph, DiGraphT, GraphT } from 'src/ai_lib/structures/graphT';
-import { Point2d } from 'src/ai_lib/structures/point2d';
+import { Point2d, IPoint2d } from 'src/ai_lib/structures/point2d';
 import { GraphEditorNode } from './GraphEditorNode';
 import { RandomParametersModal, RandomParameters } from './RandomParametersModal';
 import { GraphFile } from './graph_file';
 import * as graph_3k8n from 'src/react_ui/data/graph/graph_3k8n.json';
+import * as IterUtils from "../../../libs/array/iter_utils";
+import { GraphScaler } from './graph_scaler';
 
 interface IGraphEditorProps {
   /** Set a reference to this editor, for use by parent components */
@@ -138,7 +140,20 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
 
   private loadGraphFile(fileModel: GraphFile) {
     const graph = fileModel.to2dGraph();
+    if (this.hasNodesOutsideViewbox(graph.get_nodes())) {
+      GraphScaler.rescaleToBounds(graph, this._svg.viewbox());
+    }
     this.setGraph(graph);
+  }
+
+  private hasNodesOutsideViewbox(nodes: IPoint2d[]): boolean {
+    const vb = this._svg.viewbox();
+    if (IterUtils.any(nodes, n =>
+      n.x < vb.x || n.x > vb.x + vb.width ||
+      n.y < vb.y || n.y > vb.y + vb.height)) {
+        return true;
+    }
+    return false;
   }
 
   private toggleEdgeMode = () => {

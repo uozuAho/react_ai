@@ -2,5 +2,6 @@ Copy of ai library from https://github.com/uozuAho/ts_ai2. Reimplementing the ui
 react.
 
 load:
-- scale if outside view bounds
+- maintain aspect ratio on scale
+- iterutils name export
 - clean up
