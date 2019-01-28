@@ -6,9 +6,12 @@ import { Point2d, IPoint2d } from 'src/ai_lib/structures/point2d';
 import { GraphEditorNode } from './GraphEditorNode';
 import { RandomParametersModal, RandomParameters } from './RandomParametersModal';
 import { GraphFile } from './graph_file';
-import * as graph_3k8n from 'src/react_ui/data/graph/graph_3k8n.json';
 import { IterUtils } from "../../../libs/array/iter_utils";
 import { GraphScaler } from './graph_scaler';
+
+// saved graphs
+import * as graph_3k8n from 'src/react_ui/data/graph/graph_3k8n.json';
+import * as graph_6k8n from 'src/react_ui/data/graph/graph_6k8n.json';
 
 interface IGraphEditorProps {
   /** Set a reference to this editor, for use by parent components */
@@ -32,7 +35,8 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
   private _arrowMarker: SVG.Marker;
   private _loadGraphOptions = {
     'Load a graph...': null,
-    graph_3k8n: GraphFile.fromJson(graph_3k8n)
+    graph_3k8n: GraphFile.fromJson(graph_3k8n),
+    graph_6k8n: GraphFile.fromJson(graph_6k8n)
   }
 
   constructor(props: IGraphEditorProps) {
