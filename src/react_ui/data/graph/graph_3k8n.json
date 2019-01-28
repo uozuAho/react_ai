@@ -1,4 +1,4 @@
-export const graph_3k8n = {
+{
   "nodes": [
     {
       "x": 191.78819274902344,
@@ -95,4 +95,4 @@ export const graph_3k8n = {
       "weight": 1
     }
   ]
-};
+}

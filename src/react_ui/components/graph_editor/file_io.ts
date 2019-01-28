@@ -22,6 +22,13 @@ export class GraphFile {
         return file;
     }
 
+    public static fromJson(json: any): GraphFile {
+        const file = new GraphFile();
+        file.nodes = json.nodes.map((n: any) => new Point2d(n.x, n.y));
+        file.edges = json.edges.map((e: any) => new Edge(e.from, e.to, e.weight));
+        return file;
+    }
+
     public to2dGraph(): GraphT<Point2d> {
         const graph = new GraphT<Point2d>();
         this.nodes.map(n => graph.add_node(n));
