@@ -12,6 +12,7 @@ import { GraphScaler } from './graph_scaler';
 // saved graphs
 import * as graph_3k8n from 'src/react_ui/data/graph/graph_3k8n.json';
 import * as graph_6k8n from 'src/react_ui/data/graph/graph_6k8n.json';
+import * as graph_6k10n from 'src/react_ui/data/graph/graph_6k10n.json';
 
 interface IGraphEditorProps {
   /** Set a reference to this editor, for use by parent components */
@@ -36,7 +37,8 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
   private _loadGraphOptions = {
     'Load a graph...': null,
     graph_3k8n: GraphFile.fromJson(graph_3k8n),
-    graph_6k8n: GraphFile.fromJson(graph_6k8n)
+    graph_6k8n: GraphFile.fromJson(graph_6k8n),
+    graph_6k10n: GraphFile.fromJson(graph_6k10n)
   }
 
   constructor(props: IGraphEditorProps) {
