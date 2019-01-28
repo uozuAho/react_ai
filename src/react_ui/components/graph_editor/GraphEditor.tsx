@@ -5,7 +5,7 @@ import { randomSquareGraph, DiGraphT, GraphT } from 'src/ai_lib/structures/graph
 import { Point2d } from 'src/ai_lib/structures/point2d';
 import { GraphEditorNode } from './GraphEditorNode';
 import { RandomParametersModal, RandomParameters } from './RandomParametersModal';
-import * as fileio from './file_io';
+import { GraphFile } from './graph_file';
 import * as graph_3k8n from 'src/react_ui/data/graph/graph_3k8n.json';
 
 interface IGraphEditorProps {
@@ -30,7 +30,7 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
   private _arrowMarker: SVG.Marker;
   private _loadGraphOptions = {
     'Load a graph...': null,
-    graph_3k8n: fileio.GraphFile.fromJson(graph_3k8n)
+    graph_3k8n: GraphFile.fromJson(graph_3k8n)
   }
 
   constructor(props: IGraphEditorProps) {
@@ -125,18 +125,18 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
 
   private saveToFile = () => {
     const graph = this.getGraph();
-    fileio.saveToFile(graph);
+    GraphFile.fromGraph(graph).saveToFile();
   }
 
   private onSelectGraphChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const name = e.target.value;
     const graphModel = this._loadGraphOptions[name];
     if (graphModel !== null) {
-      this.loadGraphFile(graphModel as fileio.GraphFile)
+      this.loadGraphFile(graphModel as GraphFile)
     };
   }
 
-  private loadGraphFile(fileModel: fileio.GraphFile) {
+  private loadGraphFile(fileModel: GraphFile) {
     const graph = fileModel.to2dGraph();
     this.setGraph(graph);
   }
