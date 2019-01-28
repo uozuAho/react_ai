@@ -2,5 +2,5 @@ Copy of ai library from https://github.com/uozuAho/ts_ai2. Reimplementing the ui
 react.
 
 load:
-- maintain aspect ratio on scale
+- don't scale if fits within viewbox
 - clean up

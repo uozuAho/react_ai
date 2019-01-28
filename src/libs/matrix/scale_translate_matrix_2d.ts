@@ -21,11 +21,23 @@ export class ScaleTranslateMatrix2d {
         return new ScaleTranslateMatrix2d(arr);
     }
 
-    public static fromRects(rectFrom: IRect, rectTo: IRect): ScaleTranslateMatrix2d {
-        const xscale = rectTo.width / rectFrom.width;
-        const yscale = rectTo.height / rectFrom.height;
+    public static fromRects(rectFrom: IRect, rectTo: IRect, maintainAspectRatio: boolean = true):
+        ScaleTranslateMatrix2d {
+
+        let xscale = rectTo.width / rectFrom.width;
+        let yscale = rectTo.height / rectFrom.height;
+
+        if (maintainAspectRatio) {
+            if (xscale < yscale) {
+                yscale = xscale;
+            } else {
+                xscale = yscale;
+            }
+        }
+
         const xtrans = rectTo.x - xscale * rectFrom.x;
         const ytrans = rectTo.y - yscale * rectFrom.y;
+
         return new ScaleTranslateMatrix2d([
             [xscale,      0, xtrans],
             [     0, yscale, ytrans],
