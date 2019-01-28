@@ -57,38 +57,31 @@ export class GraphColoringBruteForcer {
     }
 
     private* allColorings(num_nodes: number, num_colors: number): IterableIterator<number[]> {
-        const arr = Array(num_nodes).fill(0);
-        for (const coloring_string of this.allColoringsAsStrings(num_nodes, num_colors)) {
-            let idx = num_nodes;
-            while (idx--) {
-                arr[idx] = coloring_string.charAt(idx);
-            }
-            yield arr;
-        }
-    }
-
-    /** Enumerate all possible colorings, leverageing toString(radix): This way
-     *  each character of the string represents the color of a node.
-     */
-    private* allColoringsAsStrings(num_nodes: number, num_colors: number): IterableIterator<string> {
-        const total_possible_colorings = num_colors**num_nodes;
+        const total_possible_colorings = num_colors ** num_nodes;
         const radix = num_colors;
 
+        // use an array as a radix-n counter, yield all countable values
+        const colors: number[] = Array(num_nodes).fill(0);
+
+        let max_reached = false;
+        const increment = (idx: number) => {
+            if (idx === colors.length) {
+                max_reached = true;
+                return;
+            }
+            colors[idx]++;
+            if (colors[idx] === radix) {
+                colors[idx] = 0;
+                increment(idx + 1);
+            }
+        }
+
         for (let i = 0; i < total_possible_colorings; i++) {
-            const str = i.toString(radix);
-            yield this.zeroLeftPad(str, num_nodes);
+            yield colors;
+            increment(0);
+            if (max_reached) {
+                break;
+            }
         }
-    }
-
-    private zeroLeftPad(str: string, size: number) {
-        const s = "00000000000000000000000000000000000000000000" + str;
-        return s.substr(s.length - size);
-    }
-
-    private charToColor(c: string): number {
-        if (c < 'a') {
-            return c.charCodeAt(0) - 48;
-        }
-        return c.charCodeAt(0) - 87;
     }
 }
