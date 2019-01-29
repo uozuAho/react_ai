@@ -1,5 +1,6 @@
 import { IGraph } from 'src/ai_lib/structures/igraph';
 import * as GraphColoring from './graph_coloring';
+import { GraphColoringGenerator } from './coloring_generator';
 
 /** Try all combinations of 1, 2, 3, ... k colors until a valid solution is found.
  *  Note that finding a solution takes exponential time in (n, e) (probably, or worse?),
@@ -30,7 +31,7 @@ export class GraphColoringBruteForcer {
             let now = new Date().getTime() - start;
             // tslint:disable-next-line:no-console
             console.log(`${now}: no ${num_colors - 1}-coloring. Trying all ${numColorings} possible ${num_colors}-colorings.`);
-            for (const coloring of this.allColorings(num_nodes, num_colors)) {
+            for (const coloring of GraphColoringGenerator.allColorings(num_nodes, num_colors)) {
                 num_colorings_tried++;
                 now = new Date().getTime() - start;
                 if (now > 10000) {
@@ -54,34 +55,5 @@ export class GraphColoringBruteForcer {
         // todo: handle this
         // no valid colorings for k <= 36
         return;
-    }
-
-    private* allColorings(num_nodes: number, num_colors: number): IterableIterator<number[]> {
-        const total_possible_colorings = num_colors ** num_nodes;
-        const radix = num_colors;
-
-        // use an array as a radix-n counter, yield all countable values
-        const colors: number[] = Array(num_nodes).fill(0);
-
-        let max_reached = false;
-        const increment = (idx: number) => {
-            if (idx === colors.length) {
-                max_reached = true;
-                return;
-            }
-            colors[idx]++;
-            if (colors[idx] === radix) {
-                colors[idx] = 0;
-                increment(idx + 1);
-            }
-        }
-
-        for (let i = 0; i < total_possible_colorings; i++) {
-            yield colors;
-            increment(0);
-            if (max_reached) {
-                break;
-            }
-        }
     }
 }
