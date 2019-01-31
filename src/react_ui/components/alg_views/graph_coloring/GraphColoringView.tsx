@@ -5,6 +5,7 @@ import { GraphT } from 'src/ai_lib/structures/graphT';
 import { GraphColoringHillClimber } from './hill_climbing_solver';
 import { IterUtils } from 'src/libs/array/iter_utils';
 import { GraphColoringBruteForcer } from './brute_force_solver';
+import { GraphColoringSimulatedAnnealer } from './simulated_annealing_solver';
 
 interface IGraphColoringViewState {
     num_nodes: number;
@@ -14,7 +15,8 @@ interface IGraphColoringViewState {
 
 enum SolverType {
     brute_force,
-    hill_climbing
+    hill_climbing,
+    simulated_annealing
 }
 
 export class GraphColoringView extends React.Component<any, IGraphColoringViewState> {
@@ -41,6 +43,7 @@ export class GraphColoringView extends React.Component<any, IGraphColoringViewSt
                     <select value={this.state.solver} onChange={this.onSolverChanged}>
                         <option value={SolverType.brute_force}>Brute force (slow!)</option>
                         <option value={SolverType.hill_climbing}>Hill climbing</option>
+                        <option value={SolverType.simulated_annealing}>Simulated annealing</option>
                     </select>
                 </label>
 
@@ -68,6 +71,9 @@ export class GraphColoringView extends React.Component<any, IGraphColoringViewSt
                 break;
             case SolverType.hill_climbing:
                 this.solveWithHillClimbing();
+                break;
+            case SolverType.simulated_annealing:
+                this.solveWithSimulatedAnnealing();
                 break;
             default:
                 break;
@@ -104,6 +110,18 @@ export class GraphColoringView extends React.Component<any, IGraphColoringViewSt
     private solveWithBruteForce() {
         const graph = this._graphToColor;
         const solver = new GraphColoringBruteForcer(graph);
+        solver.solve();
+        const solution = solver.get_colors();
+        this.setNodeColors(solution);
+
+        const num_colors = new Set(solution).size;
+
+        this.setState({num_colors});
+    }
+
+    private solveWithSimulatedAnnealing() {
+        const graph = this._graphToColor;
+        const solver = new GraphColoringSimulatedAnnealer(graph);
         solver.solve();
         const solution = solver.get_colors();
         this.setNodeColors(solution);
