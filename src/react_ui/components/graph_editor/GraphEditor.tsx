@@ -10,9 +10,11 @@ import { IterUtils } from "../../../libs/array/iter_utils";
 import { GraphScaler } from './graph_scaler';
 
 // saved graphs
-import * as graph_3k8n from 'src/react_ui/data/graph/graph_3k8n.json';
-import * as graph_6k8n from 'src/react_ui/data/graph/graph_6k8n.json';
-import * as graph_6k10n from 'src/react_ui/data/graph/graph_6k10n.json';
+import * as graph_8n3k from 'src/react_ui/data/graph/graph_8n3k.json';
+import * as graph_8n6k from 'src/react_ui/data/graph/graph_8n6k.json';
+import * as graph_10n5k from 'src/react_ui/data/graph/graph_10n5k.json';
+import * as graph_10n6k from 'src/react_ui/data/graph/graph_10n6k.json';
+import * as graph_20n from 'src/react_ui/data/graph/graph_20n.json';
 
 interface IGraphEditorProps {
   /** Set a reference to this editor, for use by parent components */
@@ -36,9 +38,11 @@ export class GraphEditor extends React.Component<IGraphEditorProps, IGraphEditor
   private _arrowMarker: SVG.Marker;
   private _loadGraphOptions = {
     'Load a graph...': null,
-    graph_3k8n: GraphFile.fromJson(graph_3k8n),
-    graph_6k8n: GraphFile.fromJson(graph_6k8n),
-    graph_6k10n: GraphFile.fromJson(graph_6k10n)
+    graph_8n3k: GraphFile.fromJson(graph_8n3k),
+    graph_8n6k: GraphFile.fromJson(graph_8n6k),
+    graph_10n5k: GraphFile.fromJson(graph_10n5k),
+    graph_10n6k: GraphFile.fromJson(graph_10n6k),
+    graph_20n: GraphFile.fromJson(graph_20n)
   }
 
   constructor(props: IGraphEditorProps) {
