@@ -28,6 +28,8 @@ export class GraphColoringSimulatedAnnealer {
             if (now - lastTempDecrease > 100) {
                 lastTempDecrease = now;
                 this._temperature = this._temperature * 0.8;
+                // tslint:disable-next-line:no-console
+                console.log(this._temperature);
             }
             const neighbour = this.get_random_neighbour();
             if (this.is_better_than(neighbour, this._colors)) {
@@ -44,6 +46,11 @@ export class GraphColoringSimulatedAnnealer {
                     const colorings_per_second = (colorings_tried * 1000) / (now - start);
                     // tslint:disable-next-line:no-console
                     console.log(`${colorings_per_second} colorings/sec`);
+                    break;
+                }
+                if (now - start > 10000) {
+                    // tslint:disable-next-line:no-console
+                    console.log('couldnt find valid solution in 10s');
                     break;
                 }
             }

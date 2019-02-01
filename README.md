@@ -3,8 +3,8 @@ react.
 
 # todo - simulated annealing
 - visualise
-- compare to other algs
-- tunable temperature profile
+- docs on page
+- tunable temperature profile?
 
 # todo - after done with simulated annealing
 - extract general local search problem and solver interfaces/classes
