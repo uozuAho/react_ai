@@ -4,12 +4,14 @@ import { GraphColoring } from './graph_coloring';
 export class GraphColoringSimulatedAnnealer {
 
     private _colors: number[];
+    private _neighbour_colors: number[];
     private _graph: IGraph;
     private _temperature: number;
 
     constructor(graph: IGraph) {
         this._graph = graph;
         this._colors = Array(graph.num_nodes()).fill(0);
+        this._neighbour_colors = Array(graph.num_nodes()).fill(0);
         this._temperature = 1000;
     }
 
@@ -17,13 +19,15 @@ export class GraphColoringSimulatedAnnealer {
 
     public solve() {
         const start = new Date().getTime();
+        let colorings_tried = 0;
         let lastTempDecrease = start;
         let isFinishing = false;
         while (true) {
+            colorings_tried++;
             const now = new Date().getTime();
             if (now - lastTempDecrease > 100) {
                 lastTempDecrease = now;
-                this._temperature = this._temperature * 0.9;
+                this._temperature = this._temperature * 0.8;
                 // tslint:disable-next-line:no-console
                 console.log(this._temperature);
             }
@@ -35,10 +39,13 @@ export class GraphColoringSimulatedAnnealer {
             else if (!isFinishing && Math.random() < Math.exp(-1 / this._temperature)) {
                 this._colors = neighbour;
             }
-            if (this._temperature < 0 || now - start > 10000) {
+            if (this._temperature < 0 || now - start > 5000) {
                 isFinishing = true;
                 // stop on next valid solution
                 if (GraphColoring.isValid(this._graph, this._colors)) {
+                    const colorings_per_second = (colorings_tried * 1000) / (now - start);
+                    // tslint:disable-next-line:no-console
+                    console.log(`${colorings_per_second} colorings/sec`);
                     break;
                 }
             }
@@ -46,12 +53,14 @@ export class GraphColoringSimulatedAnnealer {
     }
 
     private get_random_neighbour(): number[] {
-        const neighbour = this._colors.slice();
-        const num_nodes = this._graph.num_nodes();
-        const rand_idx = randomInt(num_nodes);
-        const rand_color = randomInt(num_nodes);
-        neighbour[rand_idx] = rand_color;
-        return neighbour;
+        // copy current colors to neighbour
+        let i = this._colors.length - 1;
+        while (i--) {this._neighbour_colors[i] = this._colors[i]}
+
+        const rand_idx = randomInt(this._colors.length);
+        const rand_color = randomInt(this._colors.length);
+        this._neighbour_colors[rand_idx] = rand_color;
+        return this._neighbour_colors;
     }
 
     private is_better_than(colors1: number[], colors2: number[]): boolean {
