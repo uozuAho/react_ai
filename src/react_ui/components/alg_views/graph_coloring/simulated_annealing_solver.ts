@@ -18,18 +18,16 @@ export class GraphColoringSimulatedAnnealer {
     public get_colors(): number[] { return this._colors; }
 
     public solve() {
-        const start = new Date().getTime();
+        const start = Date.now();
         let colorings_tried = 0;
         let lastTempDecrease = start;
         let isFinishing = false;
         while (true) {
             colorings_tried++;
-            const now = new Date().getTime();
+            const now = Date.now();
             if (now - lastTempDecrease > 100) {
                 lastTempDecrease = now;
                 this._temperature = this._temperature * 0.8;
-                // tslint:disable-next-line:no-console
-                console.log(this._temperature);
             }
             const neighbour = this.get_random_neighbour();
             if (this.is_better_than(neighbour, this._colors)) {
