@@ -3,7 +3,6 @@ react.
 
 # todo - simulated annealing
 - visualise
-- stop on a valid solution
 - compare to other algs
 - tunable temperature profile
 

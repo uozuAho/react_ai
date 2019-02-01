@@ -9,7 +9,6 @@ export class GraphColoringSimulatedAnnealer {
 
     constructor(graph: IGraph) {
         this._graph = graph;
-        // todo: probably better to start with a random coloring?
         this._colors = Array(graph.num_nodes()).fill(0);
         this._temperature = 1000;
     }
@@ -19,6 +18,7 @@ export class GraphColoringSimulatedAnnealer {
     public solve() {
         const start = new Date().getTime();
         let lastTempDecrease = start;
+        let isFinishing = false;
         while (true) {
             const now = new Date().getTime();
             if (now - lastTempDecrease > 100) {
@@ -31,11 +31,16 @@ export class GraphColoringSimulatedAnnealer {
             if (this.is_better_than(neighbour, this._colors)) {
                 this._colors = neighbour;
             }
-            else if (Math.random() < Math.exp(-1/this._temperature)) {
+            // choose a worse solution with probability exp(-1 / temperature)
+            else if (!isFinishing && Math.random() < Math.exp(-1 / this._temperature)) {
                 this._colors = neighbour;
             }
             if (this._temperature < 0 || now - start > 10000) {
-                break;
+                isFinishing = true;
+                // stop on next valid solution
+                if (GraphColoring.isValid(this._graph, this._colors)) {
+                    break;
+                }
             }
         }
     }
