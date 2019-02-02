@@ -1,18 +1,13 @@
-import { PandemicMapData } from './map';
-import { GraphT, EdgeT } from 'src/ai_lib/structures/graphT';
-import { Point2d } from 'src/ai_lib/structures/point2d';
+import { PandemicMapData } from './board_data';
+import { GraphT, EdgeT } from '../../../src/ai_lib/structures/graphT';
+import { Point2d } from '../../../src/ai_lib/structures/point2d';
 
-type Colour = string;
+export type Colour = 'red' | 'blue' | 'black' | 'yellow';
 
 /**
  * Reads and converts map.ts for easy usage.
  */
 export class PandemicBoard {
-
-  public static readonly RED: Colour = 'red';
-  public static readonly BLUE: Colour = 'blue';
-  public static readonly BLACK: Colour = 'black';
-  public static readonly YELLOW: Colour = 'yellow';
 
   private readonly _cities: City[];
   private readonly _cityGraph: GraphT<City>;
@@ -30,7 +25,7 @@ export class PandemicBoard {
     const cityIdIdxMap = new Map<string, number>();
     let idx = 0;
     PandemicMapData.cities.forEach(city => {
-      const cityObj = new City(city.name, new Point2d(city.x, city.y), city.colour);
+      const cityObj = new City(city.name, new Point2d(city.x, city.y), city.colour as Colour);
       this._nameToCityLookup.set(city.name, cityObj);
       this._nameToIdxLookup.set(city.name, idx);
       this._cityGraph.add_node(cityObj);

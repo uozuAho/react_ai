@@ -23,6 +23,9 @@ export class Pandemic extends React.Component {
 
     public componentDidMount() {
         this._svg = SVG('pandemic_div').size('100%', 500);
+        // set the viewbox to fit the whole board
+        // todo: why do these numbers work? there's x coords outside these bounds...
+        this._svg.viewbox(-300, 0, 1500, 1200);
         this.drawBoard();
     }
 

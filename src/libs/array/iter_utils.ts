@@ -26,6 +26,14 @@ export class IterUtils {
         return this.firstOrNull(itr, predicate) !== null;
     }
 
+    public static sum(itr: Iterable<number>): number {
+        let value = 0;
+        for (const item of itr) {
+            value += item;
+        }
+        return value;
+    }
+
     private static chooseWithChooser<T>(itr: Iterable<T>, choose: (a: T, b: T) => T): T {
         let current: T | null = null;
 
