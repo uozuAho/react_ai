@@ -1,7 +1,12 @@
 import { IGraph } from 'src/ai_lib/structures/igraph';
-import * as GraphColoring from './graph_coloring';
+import { GraphColoring } from './graph_coloring';
 
-/** Basic hill climbing graph colorer. Stops when no neighbours are better than the current state. */
+/** Basic hill climbing graph colorer. Stops when no neighbours are better than the current state.
+ * potential improvements:
+ * - local maxima: random restart?
+ * - plateau: continue for a limited time?
+ *
+ */
 export class GraphColoringHillClimber {
 
     private _colors: number[];
