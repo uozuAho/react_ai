@@ -7,7 +7,7 @@ describe('game state', () => {
     const board = new PandemicBoard();
 
     describe('init', () => {
-        const state = new PandemicGameState(board);
+        const state = PandemicGameState.createNew(board);
 
         it('should have valid infection deck', () => {
             // should have drawn 9 infection cards

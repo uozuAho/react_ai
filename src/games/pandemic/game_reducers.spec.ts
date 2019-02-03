@@ -8,11 +8,11 @@ describe('game reducers', () => {
 
     const board = new PandemicBoard();
     const reducer = new RootReducer();
-    let game_state = new PandemicGameState(board);
+    let game_state = PandemicGameState.createNew(board);
 
     beforeEach(() => {
         // reducers modify state (cos I'm lazy), so reset it here
-        game_state = new PandemicGameState(board);
+        game_state = PandemicGameState.createNew(board);
     });
 
     describe('after init', () => {

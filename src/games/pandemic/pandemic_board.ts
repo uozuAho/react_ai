@@ -4,6 +4,8 @@ import { Point2d } from '../../../src/ai_lib/structures/point2d';
 
 export type Colour = 'red' | 'blue' | 'black' | 'yellow';
 
+export const all_colours: Colour[] = ['black', 'blue', 'red', 'yellow'];
+
 /**
  * Reads and converts map.ts for easy usage.
  */

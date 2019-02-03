@@ -34,6 +34,12 @@ export class IterUtils {
         return value;
     }
 
+    public static* map<T1, T2>(itr: Iterable<T1>, f: (t: T1) => T2): Iterable<T2> {
+        for (const item of itr) {
+            yield f(item);
+        }
+    }
+
     private static chooseWithChooser<T>(itr: Iterable<T>, choose: (a: T, b: T) => T): T {
         let current: T | null = null;
 

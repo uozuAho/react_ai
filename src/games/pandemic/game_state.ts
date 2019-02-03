@@ -1,5 +1,6 @@
-import { PandemicBoard, Colour, City } from './pandemic_board';
+import { PandemicBoard, Colour, City, all_colours } from './pandemic_board';
 import { ArrayUtils } from '../../../src/libs/array/array_utils';
+import { IterUtils } from '../../../src/libs/array/iter_utils';
 
 export class PandemicGameState {
     /** infection cards per turn */
@@ -13,13 +14,28 @@ export class PandemicGameState {
 
     private _board: PandemicBoard;
 
-    constructor(board: PandemicBoard) {
+    private constructor(board: PandemicBoard) {
         this._board = board;
-        this.infection_deck = this.init_infection_deck(board);
-        this.infection_discard_pile = [];
-        this.infection_rate = 2;
-        this.city_states = this.init_cities(board);
-        this.do_initial_infection();
+    }
+
+    public static createNew(board: PandemicBoard) {
+        const state = new PandemicGameState(board);
+        state.infection_deck = this.init_infection_deck(board);
+        state.infection_discard_pile = [];
+        state.infection_rate = 2;
+        state.city_states = this.init_cities(board);
+        state.do_initial_infection();
+        return state;
+    }
+
+    public static clone(old_state: PandemicGameState): PandemicGameState {
+        const new_state = new PandemicGameState(old_state._board);
+        new_state.infection_deck = old_state.infection_deck.slice();
+        new_state.infection_discard_pile = old_state.infection_discard_pile.slice();
+        new_state.infection_rate = old_state.infection_rate;
+        const new_city_states = IterUtils.map(old_state.get_cities(), c => CityState.clone(c));
+        new_state.city_states = this.create_city_map(new_city_states);
+        return new_state;
     }
 
     public get_city(name: string): CityState {
@@ -38,15 +54,21 @@ export class PandemicGameState {
         return this._board.getAdjacentCities(city.city).map(c => this.get_city(c.name));
     }
 
-    private init_infection_deck(board: PandemicBoard): string[] {
+    private static init_infection_deck(board: PandemicBoard): string[] {
         const deck = board.getCities().map(c => c.name);
         ArrayUtils.shuffle(deck);
         return deck;
     }
 
-    private init_cities(board: PandemicBoard): Map<string, CityState> {
+    private static init_cities(board: PandemicBoard): Map<string, CityState> {
+        return this.create_city_map(board.getCities().map(c => new CityState(c)));
+    }
+
+    private static create_city_map(city_states: Iterable<CityState>): Map<string, CityState> {
         const map = new Map<string, CityState>();
-        board.getCities().map(c => map.set(c.name, new CityState(c)));
+        for (const city_state of city_states) {
+            map.set(city_state.city.name, city_state);
+        }
         return map;
     }
 
@@ -74,6 +96,12 @@ export class CityState {
     ]);
 
     constructor(public city: City) {}
+
+    public static clone(old_state: CityState): CityState {
+        const new_state = new CityState(old_state.city);
+        all_colours.map(c => new_state.cubes.set(c, old_state.num_cubes(c)));
+        return new_state;
+    }
 
     public num_cubes(colour?: Colour): number {
         if (colour === undefined) {
