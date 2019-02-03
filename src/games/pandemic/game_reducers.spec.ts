@@ -8,43 +8,51 @@ describe('game reducers', () => {
 
     const board = new PandemicBoard();
     const reducer = new RootReducer();
-    let game_state = PandemicGameState.createNew(board);
-
-    beforeEach(() => {
-        // reducers modify state (cos I'm lazy), so reset it here
-        game_state = PandemicGameState.createNew(board);
-    });
+    const initial_game_state = PandemicGameState.createNew(board);
 
     describe('after init', () => {
 
         it('end turn', () => {
-            const nextState = reducer.reduce(game_state, new EndTurnAction());
+            const old_state = initial_game_state;
 
-            expect(nextState.infection_deck.length).toBe(48 - 9 - 2);
-            expect(nextState.infection_discard_pile.length).toBe(9 + 2);
-            expect(num_cubes_on_cities(nextState)).toBe(9 + 6 + 3 + 2);
+            const next_state = reducer.reduce(initial_game_state, new EndTurnAction());
+
+            expect(next_state.infection_deck.length)
+                .toBe(old_state.infection_deck.length - 2);
+
+            expect(next_state.infection_discard_pile.length)
+                .toBe(old_state.infection_discard_pile.length + 2);
+
+            expect(num_cubes_on_cities(next_state)).toBe(num_cubes_on_cities(old_state) + 2);
         });
     });
 
     describe('infect city', () => {
-        it('fresh atlanta', () => {
-            const city = game_state.get_city('Atlanta');
 
-            infect_city(game_state, city);
+        let next_state: PandemicGameState;
 
-            expect(city.num_cubes(city.city.colour)).toBe(1);
+        beforeEach(() => {
+            // infect city modifies state, so use this one
+            next_state = initial_game_state.clone();
         });
 
-        // todo: this one sometimes breaks with maximum stack size. check again after making state immutable
-        it('atlanta outbreak', () => {
-            const atlanta = game_state.get_city('Atlanta');
-            const atlanta_colour = atlanta.city.colour;
-            const neighbours = game_state.get_neighbours(atlanta);
+        it('fresh atlanta', () => {
+            const atlanta = next_state.get_city('Atlanta');
 
-            infect_city(game_state, atlanta);
-            infect_city(game_state, atlanta);
-            infect_city(game_state, atlanta);
-            infect_city(game_state, atlanta);
+            infect_city(next_state, atlanta);
+
+            expect(atlanta.num_cubes(atlanta.city.colour)).toBe(1);
+        });
+
+        it('atlanta outbreak', () => {
+            const atlanta = next_state.get_city('Atlanta');
+            const atlanta_colour = atlanta.city.colour;
+            const neighbours = next_state.get_neighbours(atlanta);
+
+            infect_city(next_state, atlanta);
+            infect_city(next_state, atlanta);
+            infect_city(next_state, atlanta);
+            infect_city(next_state, atlanta);
 
             expect(atlanta.num_cubes(atlanta_colour)).toBe(3);
             for (const neighbour of neighbours) {

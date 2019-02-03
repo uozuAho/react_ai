@@ -15,19 +15,22 @@ export class RootReducer {
 }
 
 function onEndTurn(state: PandemicGameState, action: IPandemicAction) {
-    for (let i = 0; i < state.infection_rate; i++) {
-        if (state.infection_deck.length === 0) {
+    const new_state = state.clone();
+
+    for (let i = 0; i < new_state.infection_rate; i++) {
+        if (new_state.infection_deck.length === 0) {
             // todo: game over man!
         }
-        const card = state.infection_deck.pop()!;
-        const city = state.get_city(card);
-        infect_city(state, city);
-        state.infection_discard_pile.push(card);
+        const card = new_state.infection_deck.pop()!;
+        const city = new_state.get_city(card);
+        infect_city(new_state, city);
+        new_state.infection_discard_pile.push(card);
     }
-    return state;
+
+    return new_state;
 }
 
-/** Increase a city's cube count by 1 */
+/** Increase a city's cube count by 1. Note: MODIFIES STATE */
 // exported for testing :(
 export function infect_city(state: PandemicGameState, city: CityState, colour?: Colour, dont_infect?: CityState) {
     if (city === dont_infect) {

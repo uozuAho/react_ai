@@ -28,13 +28,13 @@ export class PandemicGameState {
         return state;
     }
 
-    public static clone(old_state: PandemicGameState): PandemicGameState {
-        const new_state = new PandemicGameState(old_state._board);
-        new_state.infection_deck = old_state.infection_deck.slice();
-        new_state.infection_discard_pile = old_state.infection_discard_pile.slice();
-        new_state.infection_rate = old_state.infection_rate;
-        const new_city_states = IterUtils.map(old_state.get_cities(), c => CityState.clone(c));
-        new_state.city_states = this.create_city_map(new_city_states);
+    public clone(): PandemicGameState {
+        const new_state = new PandemicGameState(this._board);
+        new_state.infection_deck = this.infection_deck.slice();
+        new_state.infection_discard_pile = this.infection_discard_pile.slice();
+        new_state.infection_rate = this.infection_rate;
+        const new_city_states = IterUtils.map(this.get_cities(), c => c.clone());
+        new_state.city_states = PandemicGameState.create_city_map(new_city_states);
         return new_state;
     }
 
@@ -97,9 +97,9 @@ export class CityState {
 
     constructor(public city: City) {}
 
-    public static clone(old_state: CityState): CityState {
-        const new_state = new CityState(old_state.city);
-        all_colours.map(c => new_state.cubes.set(c, old_state.num_cubes(c)));
+    public clone(): CityState {
+        const new_state = new CityState(this.city);
+        all_colours.map(c => new_state.cubes.set(c, this.num_cubes(c)));
         return new_state;
     }
 
