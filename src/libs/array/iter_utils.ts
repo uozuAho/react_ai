@@ -40,6 +40,14 @@ export class IterUtils {
         }
     }
 
+    public static* filter<T>(itr: Iterable<T>, f: (t: T) => boolean): Iterable<T> {
+        for (const item of itr) {
+            if (f(item)) {
+                yield item;
+            }
+        }
+    }
+
     private static chooseWithChooser<T>(itr: Iterable<T>, choose: (a: T, b: T) => T): T {
         let current: T | null = null;
 
