@@ -1,4 +1,4 @@
-import { PandemicGameState, CityState } from './game_state';
+import { PandemicGameState, CityState, LoseCondition } from './game_state';
 import { IPandemicAction, ActionNames } from './game_actions';
 import { Colour } from './pandemic_board';
 
@@ -33,16 +33,24 @@ function onEndTurn(state: PandemicGameState, action: IPandemicAction) {
 /** Increase a city's cube count by 1. Note: MODIFIES STATE */
 // exported for testing :(
 export function infect_city(state: PandemicGameState, city: CityState, colour?: Colour, dont_infect?: CityState) {
+    colour = colour ? colour : city.city.colour;
+
     if (city === dont_infect) {
         return;
     }
-    if (city.num_cubes(city.city.colour) < 3) {
-        city.add_cube(colour);
+    if (city.num_cubes(colour) < 3) {
+        if (state.unused_cubes.num_cubes(colour) === 0) {
+            state.lose_condition = LoseCondition.NoMoreCubes;
+        }
+        else {
+            state.unused_cubes.remove_cube(colour);
+            city.add_cube(colour);
+        }
     }
     else {
         // outbreak
         for (const neighbour of state.get_neighbours(city)) {
-            infect_city(state, neighbour, city.city.colour, city);
+            infect_city(state, neighbour, colour, city);
         }
     }
 }

@@ -1,5 +1,5 @@
 import { PandemicBoard, all_colours } from "./pandemic_board";
-import { PandemicGameState } from './game_state';
+import { PandemicGameState, LoseCondition } from './game_state';
 import { RootReducer, infect_city } from './game_reducers';
 import { EndTurnAction } from './game_actions';
 import { IterUtils } from '../../../src/libs/array/iter_utils';
@@ -77,6 +77,7 @@ describe('game reducers', () => {
             // no cubes left - should have same number of cubes, and game is lost
             expect(last_city.num_cubes()).toBe(2);
             expect(no_cubes_state.lost()).toBe(true);
+            expect(no_cubes_state.lose_condition).toBe(LoseCondition.NoMoreCubes);
         });
     });
 });

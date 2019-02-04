@@ -9,13 +9,15 @@ export class PandemicGameState {
     public infection_deck: string[];
     /** city name[] */
     public infection_discard_pile: string[];
+
+    public win_condition?: WinCondition;
+    public lose_condition?: LoseCondition;
+    public unused_cubes: Cubes;
+
     /** map of city name : city state */
     private city_states: Map<string, CityState>;
 
     private _board: PandemicBoard;
-    private _won_because?: WinCondition;
-    private _lost_because?: LoseCondition;
-    private _unused_cubes: Map<Colour, number>;
 
     private constructor(board: PandemicBoard) {
         this._board = board;
@@ -26,7 +28,7 @@ export class PandemicGameState {
         state.infection_deck = this.init_infection_deck(board);
         state.infection_discard_pile = [];
         state.infection_rate = 2;
-        state._unused_cubes = this.init_cubes();
+        state.unused_cubes = this.init_cubes();
         state.city_states = this.init_cities(board);
         state.do_initial_infection();
         return state;
@@ -37,10 +39,7 @@ export class PandemicGameState {
         new_state.infection_deck = this.infection_deck.slice();
         new_state.infection_discard_pile = this.infection_discard_pile.slice();
         new_state.infection_rate = this.infection_rate;
-        new_state._unused_cubes = new Map();
-        for (const kv of this._unused_cubes.entries()) {
-            new_state._unused_cubes.set(kv[0], kv[1]);
-        }
+        new_state.unused_cubes = this.unused_cubes.clone();
         const new_city_states = IterUtils.map(this.get_cities(), c => c.clone());
         new_state.city_states = PandemicGameState.create_city_map(new_city_states);
         return new_state;
@@ -64,9 +63,9 @@ export class PandemicGameState {
 
     public is_finished = () => this.won() || this.lost();
 
-    public won = () => this._won_because !== undefined;
+    public won = () => this.win_condition !== undefined;
 
-    public lost = () => this._lost_because !== undefined;
+    public lost = () => this.lose_condition !== undefined;
 
     private static init_infection_deck(board: PandemicBoard): string[] {
         const deck = board.getCities().map(c => c.name);
@@ -74,12 +73,10 @@ export class PandemicGameState {
         return deck;
     }
 
-    private static init_cubes(): Map<Colour, number> {
-        const map = new Map<Colour, number>();
-        for (const colour of all_colours) {
-            map.set(colour, 24);
-        }
-        return map;
+    private static init_cubes(): Cubes {
+        const cubes = new Cubes();
+        all_colours.map(c => cubes.set_num_cubes(c, 24));
+        return cubes;
     }
 
     private static init_cities(board: PandemicBoard): Map<string, CityState> {
@@ -102,8 +99,7 @@ export class PandemicGameState {
                 const city = this.get_city(card);
                 const colour = city.city.colour;
                 for (let k = 0; k < j; k++) {
-                    // todo: take cubes from cube pile
-                    // meh... not another for loop...
+                    this.unused_cubes.remove_cube(colour);
                     city.add_cube(colour);
                 }
             }
@@ -112,48 +108,67 @@ export class PandemicGameState {
 }
 
 export class CityState {
-    private cubes: Map<Colour, number> = new Map([
+    private _cubes: Cubes;
+
+    constructor(public city: City) {
+        this._cubes = new Cubes();
+    }
+
+    public clone(): CityState {
+        const new_state = new CityState(this.city);
+        new_state._cubes = this._cubes.clone();
+        return new_state;
+    }
+
+    public num_cubes(colour?: Colour): number {
+        colour = colour ? colour : this.city.colour;
+        return this._cubes.num_cubes(colour);
+    }
+
+    public add_cube(colour?: Colour) {
+        colour = colour ? colour : this.city.colour;
+        this._cubes.add_cube(colour);
+    }
+
+    public remove_cube(colour?: Colour) {
+        colour = colour ? colour : this.city.colour;
+        this._cubes.remove_cube(colour);
+    }
+}
+
+class Cubes {
+    private _counts: Map<Colour, number> = new Map([
         ["red" as Colour, 0],
         ["yellow" as Colour, 0],
         ["black" as Colour, 0],
         ["blue" as Colour, 0],
     ]);
 
-    constructor(public city: City) {}
-
-    public clone(): CityState {
-        const new_state = new CityState(this.city);
-        all_colours.map(c => new_state.cubes.set(c, this.num_cubes(c)));
-        return new_state;
+    public clone(): Cubes {
+        const new_cubes = new Cubes();
+        all_colours.map(c => new_cubes._counts.set(c, this.num_cubes(c)));
+        return new_cubes;
     }
 
-    public num_cubes(colour?: Colour): number {
-        if (colour === undefined) {
-            return this.num_all_cubes();
-        }
-        return this.cubes.get(colour)!;
+    public num_cubes(colour: Colour): number {
+        return this._counts.get(colour)!;
     }
 
-    private num_all_cubes(): number {
-        return this.num_cubes("black") +
-            this.num_cubes("red") +
-            this.num_cubes("yellow") +
-            this.num_cubes("blue");
-    }
-
-    public add_cube(colour?: Colour) {
-        colour = colour ? colour : this.city.colour;
+    public add_cube(colour: Colour) {
         const num_cubes = this.num_cubes(colour);
-        this.cubes.set(colour, num_cubes + 1);
+        this._counts.set(colour, num_cubes + 1);
     }
 
-    public remove_cube(colour?: Colour) {
-        colour = colour ? colour : this.city.colour;
+    public set_num_cubes(colour: Colour, value: number) {
+        this._counts.set(colour, value);
+    }
+
+    public remove_cube(colour: Colour) {
         const num_cubes = this.num_cubes(colour);
         if (num_cubes === 0) {
             throw new Error('0 cubes to remove');
         }
-        this.cubes.set(colour, num_cubes - 1);
+        this._counts.set(colour, num_cubes - 1);
     }
 }
 
@@ -161,5 +176,5 @@ export enum WinCondition {
 }
 
 export enum LoseCondition {
-    no_more_cubes
+    NoMoreCubes
 }
