@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as SVG from 'svg.js';
 import { PandemicBoard, City } from 'src/games/pandemic/pandemic_board';
+import { IterUtils } from 'src/libs/array/iter_utils';
 
 export class Pandemic extends React.Component {
 
@@ -30,10 +31,23 @@ export class Pandemic extends React.Component {
 
     private init_svg(element_id: string): SVG.Doc {
         const svg = SVG(element_id).size('100%', 500);
-        // set the viewbox to fit the whole board
-        // todo: why do these numbers work? there's x coords outside these bounds...
-        svg.viewbox(-300, 0, 1500, 1200);
+        this.fit_board_to_svg(svg);
         return svg;
+    }
+
+    private fit_board_to_svg(svg: SVG.Doc) {
+        const margin = 40;
+
+        const xcoords = this._board.getCities().map(c => c.location.x);
+        const ycoords = this._board.getCities().map(c => c.location.y);
+        const xmin = IterUtils.min(xcoords) - margin;
+        const xmax = IterUtils.max(xcoords) + margin;
+        const ymin = IterUtils.min(ycoords) - margin;
+        const ymax = IterUtils.max(ycoords) + margin;
+        const width = xmax - xmin;
+        const height = ymax - ymin;
+
+        svg.viewbox(xmin, ymin, width, height);
     }
 
     private drawBoard() {
