@@ -1,6 +1,7 @@
 import { PandemicGameState, CityState, LoseCondition } from './game_state';
 import { IPandemicAction, ActionNames } from './game_actions';
 import { Colour } from './pandemic_board';
+import { ArrayUtils } from '../../../src/libs/array/array_utils';
 
 export class RootReducer {
 
@@ -32,12 +33,10 @@ function onEndTurn(state: PandemicGameState, action: IPandemicAction) {
 
 /** Increase a city's cube count by 1. Note: MODIFIES STATE */
 // exported for testing :(
-export function infect_city(state: PandemicGameState, city: CityState, colour?: Colour, dont_infect?: CityState) {
+export function infect_city(state: PandemicGameState, city: CityState, colour?: Colour) {
+
     colour = colour ? colour : city.city.colour;
 
-    if (city === dont_infect) {
-        return;
-    }
     if (city.num_cubes(colour) < 3) {
         if (state.unused_cubes.num_cubes(colour) === 0) {
             state.lose_condition = LoseCondition.NoMoreCubes;
@@ -48,9 +47,24 @@ export function infect_city(state: PandemicGameState, city: CityState, colour?: 
         }
     }
     else {
-        // outbreak
-        for (const neighbour of state.get_neighbours(city)) {
-            infect_city(state, neighbour, colour, city);
+        outbreak(state, city, colour, []);
+    }
+}
+
+function outbreak(state: PandemicGameState, city: CityState, colour: Colour, outbreaked: CityState[]) {
+
+    outbreaked.push(city);
+
+    // todo: outbreak counter, lose condition
+
+    for (const neighbour of state.get_neighbours(city)) {
+        if (state.lost())                               { break; }
+        if (ArrayUtils.contains(outbreaked, neighbour)) { continue; }
+
+        if (neighbour.num_cubes(colour) === 3) {
+            outbreak(state, neighbour, colour, outbreaked);
+        } else {
+            infect_city(state, neighbour, colour);
         }
     }
 }

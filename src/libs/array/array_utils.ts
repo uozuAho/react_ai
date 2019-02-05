@@ -1,4 +1,5 @@
 export class ArrayUtils {
+    /** in-place shuffle */
     public static shuffle<T>(array: T[]) {
         // fisher-yates. copied from https://stackoverflow.com/a/6274398/2670469
         let i = array.length;
@@ -12,5 +13,9 @@ export class ArrayUtils {
         }
 
         return array;
+    }
+
+    public static contains<T>(array: T[], item: T): boolean {
+        return array.indexOf(item) !== -1;
     }
 }

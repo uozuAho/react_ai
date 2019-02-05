@@ -1,4 +1,4 @@
-import { PandemicBoard, all_colours } from "./pandemic_board";
+import { PandemicBoard, all_colours, Colour } from "./pandemic_board";
 import { PandemicGameState, LoseCondition } from './game_state';
 import { RootReducer, infect_city } from './game_reducers';
 import { EndTurnAction } from './game_actions';
@@ -60,6 +60,42 @@ describe('game reducers', () => {
             for (const neighbour of neighbours) {
                 expect(neighbour.num_cubes(atlanta_colour)).toBe(1);
             }
+        });
+
+        it('miami outbreak chain reaction', () => {
+            // note that this covers a border case - miami is a neighbour of atlanta
+            const miami = no_cubes_state.get_city('Miami');
+            const mexico = no_cubes_state.get_city('Mexico City');
+            const bogota = no_cubes_state.get_city('Bogota');
+            const atlanta = no_cubes_state.get_city('Atlanta');
+            const washington = no_cubes_state.get_city('Washington');
+            const chicago = no_cubes_state.get_city('Chicago');
+            const los_angeles = no_cubes_state.get_city('Los Angeles');
+            const lima = no_cubes_state.get_city('Lima');
+            const buenos_aires = no_cubes_state.get_city('Buenos Aires');
+            const sao_paulo = no_cubes_state.get_city('Sao Paulo');
+            const yellow: Colour = 'yellow';
+
+            for (const city of [miami, mexico, bogota]) {
+                infect_city(no_cubes_state, city);
+                infect_city(no_cubes_state, city);
+                infect_city(no_cubes_state, city);
+            }
+
+            // infect miami causes chain outbreak
+            infect_city(no_cubes_state, miami);
+
+            expect(miami.num_cubes(yellow)).toBe(3);
+            expect(mexico.num_cubes(yellow)).toBe(3);
+            expect(bogota.num_cubes(yellow)).toBe(3);
+
+            expect(atlanta.num_cubes(yellow)).toBe(1);
+            expect(washington.num_cubes(yellow)).toBe(1);
+            expect(chicago.num_cubes(yellow)).toBe(1);
+            expect(los_angeles.num_cubes(yellow)).toBe(1);
+            expect(lima.num_cubes(yellow)).toBe(2);
+            expect(buenos_aires.num_cubes(yellow)).toBe(1);
+            expect(sao_paulo.num_cubes(yellow)).toBe(1);
         });
 
         it('should lose game when cubes run out', () => {
