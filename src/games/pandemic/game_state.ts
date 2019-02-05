@@ -13,6 +13,7 @@ export class PandemicGameState {
     public win_condition?: WinCondition;
     public lose_condition?: LoseCondition;
     public unused_cubes: Cubes;
+    public outbreak_counter: number;
 
     /** map of city name : city state */
     private city_states: Map<string, CityState>;
@@ -29,6 +30,7 @@ export class PandemicGameState {
         state.infection_discard_pile = [];
         state.infection_rate = 2;
         state.unused_cubes = this.init_cubes();
+        state.outbreak_counter = 0;
         state.city_states = this.init_cities(board);
         state.do_initial_infection();
         return state;
@@ -40,6 +42,7 @@ export class PandemicGameState {
         new_state.infection_discard_pile = this.infection_discard_pile.slice();
         new_state.infection_rate = this.infection_rate;
         new_state.unused_cubes = this.unused_cubes.clone();
+        new_state.outbreak_counter = this.outbreak_counter;
         const new_city_states = IterUtils.map(this.get_cities(), c => c.clone());
         new_state.city_states = PandemicGameState.create_city_map(new_city_states);
         return new_state;
@@ -176,5 +179,6 @@ export enum WinCondition {
 }
 
 export enum LoseCondition {
-    NoMoreCubes
+    NoMoreCubes,
+    MaxOutbreaks
 }

@@ -115,6 +115,20 @@ describe('game reducers', () => {
             expect(no_cubes_state.lost()).toBe(true);
             expect(no_cubes_state.lose_condition).toBe(LoseCondition.NoMoreCubes);
         });
+
+        it('should lose game at max outbreaks', () => {
+            no_cubes_state.outbreak_counter = 7;
+
+            const atlanta = no_cubes_state.get_city('Atlanta');
+
+            infect_city(no_cubes_state, atlanta);
+            infect_city(no_cubes_state, atlanta);
+            infect_city(no_cubes_state, atlanta);
+            infect_city(no_cubes_state, atlanta);
+
+            expect(no_cubes_state.lost()).toBe(true);
+            expect(no_cubes_state.lose_condition).toBe(LoseCondition.MaxOutbreaks);
+        });
     });
 });
 

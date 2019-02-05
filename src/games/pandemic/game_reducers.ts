@@ -53,9 +53,12 @@ export function infect_city(state: PandemicGameState, city: CityState, colour?: 
 
 function outbreak(state: PandemicGameState, city: CityState, colour: Colour, outbreaked: CityState[]) {
 
-    outbreaked.push(city);
+    if (++state.outbreak_counter === 8) {
+        state.lose_condition = LoseCondition.MaxOutbreaks;
+        return;
+    }
 
-    // todo: outbreak counter, lose condition
+    outbreaked.push(city);
 
     for (const neighbour of state.get_neighbours(city)) {
         if (state.lost())                               { break; }
