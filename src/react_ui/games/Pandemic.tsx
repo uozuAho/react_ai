@@ -6,6 +6,7 @@ export class Pandemic extends React.Component {
 
     private _svg: SVG.Doc;
     private _board: PandemicBoard;
+    private _city_factory: SvgCityFactory;
 
     constructor(props: any) {
         super(props);
@@ -22,11 +23,17 @@ export class Pandemic extends React.Component {
     }
 
     public componentDidMount() {
-        this._svg = SVG('pandemic_div').size('100%', 500);
+        this._svg = this.init_svg('pandemic_div');
+        this._city_factory = new SvgCityFactory(this._svg);
+        this.drawBoard();
+    }
+
+    private init_svg(element_id: string): SVG.Doc {
+        const svg = SVG(element_id).size('100%', 500);
         // set the viewbox to fit the whole board
         // todo: why do these numbers work? there's x coords outside these bounds...
-        this._svg.viewbox(-300, 0, 1500, 1200);
-        this.drawBoard();
+        svg.viewbox(-300, 0, 1500, 1200);
+        return svg;
     }
 
     private drawBoard() {
@@ -40,10 +47,7 @@ export class Pandemic extends React.Component {
     }
 
     private createCityAtSvgCoords(city: City): SvgCity {
-        const circle = this._svg.circle(20)
-            .center(city.location.x, city.location.y)
-            .fill(city.colour);
-        return new SvgCity(city, circle);
+        return this._city_factory.newSvgCity(city);
     }
 
     private createEdge(from: City, to: City) {
@@ -57,6 +61,31 @@ export class Pandemic extends React.Component {
     }
 }
 
+class SvgCityFactory {
+    public constructor(private _svg: SVG.Doc) {}
+
+    public newSvgCity(city: City): SvgCity {
+
+        const circle = this._svg.circle(20)
+            .center(city.location.x, city.location.y)
+            .fill(city.colour);
+
+        const name = this._svg.text(city.name)
+            .center(city.location.x, city.location.y - 20);
+
+        return new SvgCity(city, circle, name);
+    }
+}
+
 class SvgCity {
-    constructor(private city: City, private circle: SVG.Circle) {}
+
+    public name: string;
+
+    constructor(
+        private city: City,
+        private svg_circle: SVG.Circle,
+        private svg_name: SVG.Text)
+    {
+        this.name = city.name;
+    }
 }
