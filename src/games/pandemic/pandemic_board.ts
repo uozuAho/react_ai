@@ -44,6 +44,10 @@ export class PandemicBoard {
     this.invertY();
   }
 
+  public getCityGraph(): GraphT<City> {
+    return this._cityGraph;
+  }
+
   public getCities(): City[] {
     return this._cityGraph.get_nodes();
   }

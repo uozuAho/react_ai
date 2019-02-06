@@ -2,16 +2,17 @@ import * as React from 'react';
 import * as SVG from 'svg.js';
 import { PandemicBoard, City } from 'src/games/pandemic/pandemic_board';
 import { IterUtils } from 'src/libs/array/iter_utils';
+import { PandemicGameState, CityState } from 'src/games/pandemic/game_state';
 
 export class Pandemic extends React.Component {
 
     private _svg: SVG.Doc;
-    private _board: PandemicBoard;
+    private _game_state: PandemicGameState;
     private _city_factory: SvgCityFactory;
 
     constructor(props: any) {
         super(props);
-        this._board = new PandemicBoard();
+        this._game_state = PandemicGameState.createNew(new PandemicBoard());
     }
 
     public render() {
@@ -38,8 +39,8 @@ export class Pandemic extends React.Component {
     private fit_board_to_svg(svg: SVG.Doc) {
         const margin = 40;
 
-        const xcoords = this._board.getCities().map(c => c.location.x);
-        const ycoords = this._board.getCities().map(c => c.location.y);
+        const xcoords = Array.from(IterUtils.map(this._game_state.get_cities(), c => c.city.location.x));
+        const ycoords = Array.from(IterUtils.map(this._game_state.get_cities(), c => c.city.location.y));
         const xmin = IterUtils.min(xcoords) - margin;
         const xmax = IterUtils.max(xcoords) + margin;
         const ymin = IterUtils.min(ycoords) - margin;
@@ -51,16 +52,18 @@ export class Pandemic extends React.Component {
     }
 
     private drawBoard() {
-        const cityMap: Map<City, SvgCity> = new Map();
-        for (const city of this._board.getCities()) {
-            cityMap.set(city, this.createCityAtSvgCoords(city));
+        const graph = this._game_state.get_city_graph();
+        const cities = graph.get_nodes();
+
+        for (const city of cities) {
+            this.createCityAtSvgCoords(city);
         }
-        for (const edge of this._board.getEdges()) {
-            this.createEdge(edge.from, edge.to);
+        for (const edge of graph.get_edges()) {
+            this.createEdge(cities[edge.from].city, cities[edge.to].city);
         }
     }
 
-    private createCityAtSvgCoords(city: City): SvgCity {
+    private createCityAtSvgCoords(city: CityState): SvgCity {
         return this._city_factory.newSvgCity(city);
     }
 
@@ -78,7 +81,9 @@ export class Pandemic extends React.Component {
 class SvgCityFactory {
     public constructor(private _svg: SVG.Doc) {}
 
-    public newSvgCity(city: City): SvgCity {
+    public newSvgCity(city_state: CityState): SvgCity {
+
+        const city = city_state.city;
 
         const circle = this._svg.circle(20)
             .center(city.location.x, city.location.y)
