@@ -8,7 +8,6 @@ export class Pandemic extends React.Component {
 
     private _svg: SVG.Doc;
     private _game_state: PandemicGameState;
-    private _city_factory: SvgCityFactory;
 
     constructor(props: any) {
         super(props);
@@ -26,7 +25,6 @@ export class Pandemic extends React.Component {
 
     public componentDidMount() {
         this._svg = this.init_svg('pandemic_div');
-        this._city_factory = new SvgCityFactory(this._svg);
         this.drawBoard();
     }
 
@@ -64,7 +62,7 @@ export class Pandemic extends React.Component {
     }
 
     private createCityAtSvgCoords(city: CityState): SvgCity {
-        return this._city_factory.newSvgCity(city);
+        return new SvgCity(this._svg, city);
     }
 
     private createEdge(from: City, to: City) {
@@ -78,23 +76,24 @@ export class Pandemic extends React.Component {
     }
 }
 
-class SvgCityFactory {
-    public constructor(private _svg: SVG.Doc) {}
+class SvgCity {
 
-    public newSvgCity(city_state: CityState): SvgCity {
+    private _city_circle: SVG.Circle;
+    private _name: SVG.Text;
+    private _cubes: SvgCityCubesDisplay;
+
+    constructor(svg: SVG.Doc, city_state: CityState) {
 
         const city = city_state.city;
 
-        const circle = this._svg.circle(20)
+        this._city_circle = svg.circle(20)
             .center(city.location.x, city.location.y)
             .fill(city.colour);
 
-        const name = this._svg.text(city.name)
+        this._name = svg.text(city.name)
             .center(city.location.x, city.location.y - 20);
 
-        const cubes = new SvgCityCubesDisplay(this._svg, city_state);
-
-        return new SvgCity(city, circle, name);
+        this._cubes = new SvgCityCubesDisplay(svg, city_state);
     }
 }
 
@@ -119,18 +118,5 @@ class SvgCityCubesDisplay {
         return this._svg.text(num_cubes)
             .center(city_pos.x + x_offset, city_pos.y + 20)
             .stroke(colour);
-    }
-}
-
-class SvgCity {
-
-    public name: string;
-
-    constructor(
-        private city: City,
-        private svg_circle: SVG.Circle,
-        private svg_name: SVG.Text)
-    {
-        this.name = city.name;
     }
 }
