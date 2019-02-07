@@ -166,7 +166,7 @@ export class CityState {
     }
 }
 
-class Cubes {
+export class Cubes {
     private _counts: Map<Colour, number> = new Map([
         ["red" as Colour, 0],
         ["yellow" as Colour, 0],

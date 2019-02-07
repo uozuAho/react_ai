@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as SVG from 'svg.js';
-import { PandemicBoard, City } from 'src/games/pandemic/pandemic_board';
+import { PandemicBoard, City, Colour, all_colours } from 'src/games/pandemic/pandemic_board';
 import { IterUtils } from 'src/libs/array/iter_utils';
 import { PandemicGameState, CityState } from 'src/games/pandemic/game_state';
 
@@ -92,7 +92,33 @@ class SvgCityFactory {
         const name = this._svg.text(city.name)
             .center(city.location.x, city.location.y - 20);
 
+        const cubes = new SvgCityCubesDisplay(this._svg, city_state);
+
         return new SvgCity(city, circle, name);
+    }
+}
+
+class SvgCityCubesDisplay {
+    constructor(private _svg: SVG.Doc, city_state: CityState) {
+
+        const svgMap = new Map<Colour, SVG.Text>();
+
+        let offset = 0;
+        for (const colour of all_colours) {
+            const svgText = this.createCubeSvgText(city_state, colour, offset);
+            svgMap.set(colour, svgText);
+            offset += 20;
+        }
+    }
+
+    private createCubeSvgText(city: CityState, colour: Colour, x_offset: number) {
+
+        const city_pos = city.city.location;
+        const num_cubes = city.num_cubes(colour).toString();
+
+        return this._svg.text(num_cubes)
+            .center(city_pos.x + x_offset, city_pos.y + 20)
+            .stroke(colour);
     }
 }
 
