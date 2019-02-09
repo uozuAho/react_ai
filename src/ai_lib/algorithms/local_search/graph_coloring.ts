@@ -21,7 +21,7 @@ export class GraphColoring {
         return true;
     }
 
-    /** Retunrs the number of nodes which have the same colour as an adjacent node */
+    /** Returns the number of nodes which have the same colour as an adjacent node */
     public static numInvalidNodes(graph: IGraph, colors: number[]): number {
         const num_nodes = graph.num_nodes();
         if (colors.length !== num_nodes) {

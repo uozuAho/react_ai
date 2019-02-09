@@ -1,6 +1,6 @@
 import { IGraph } from 'src/ai_lib/structures/igraph';
-import { GraphColoring } from './graph_coloring';
 import { GraphColoringGenerator } from './coloring_generator';
+import { GraphColoring } from '../../../../ai_lib/algorithms/local_search/graph_coloring';
 
 /** Try all combinations of 1, 2, 3, ... k colors until a valid solution is found.
  *  Note that finding a solution takes exponential time in (n, e) (probably, or worse?),

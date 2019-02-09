@@ -1,5 +1,5 @@
-import { Graph } from '../../../../../src/ai_lib/structures/graph';
 import { GraphColoring } from './graph_coloring';
+import { Graph } from '../../structures/graph';
 
 describe('Graph coloring', () => {
     it('no edges should be valid', () => {

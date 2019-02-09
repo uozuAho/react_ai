@@ -2,15 +2,21 @@ import * as React from 'react';
 import { GraphEditor } from '../../graph_editor/GraphEditor';
 import { GraphEditorNode } from '../../graph_editor/GraphEditorNode';
 import { GraphT } from 'src/ai_lib/structures/graphT';
-import { GraphColoringHillClimber } from './hill_climbing_solver';
 import { IterUtils } from 'src/libs/array/iter_utils';
 import { GraphColoringBruteForcer } from './brute_force_solver';
-import { GraphColoringSimulatedAnnealer } from './simulated_annealing_solver';
+import { GraphColoringProblem } from 'src/ai_lib/algorithms/local_search/graph_coloring_problem';
+import { HillClimbingSolver } from 'src/ai_lib/algorithms/local_search/hill_climbing';
+import { SimulatedAnnealing } from 'src/ai_lib/algorithms/local_search/simulated_annealing';
+import { ILocalSearchAlgorithm } from 'src/ai_lib/algorithms/local_search/local_search_algorithm';
+import { ILocalSearchProblem } from 'src/ai_lib/algorithms/local_search/local_search_problem';
+import { GraphColoring } from 'src/ai_lib/algorithms/local_search/graph_coloring';
 
 interface IGraphColoringViewState {
     num_nodes: number;
     num_colors: number;
     solver: SolverType;
+    is_valid: boolean;
+    algorithm_details: string;
 }
 
 enum SolverType {
@@ -18,6 +24,23 @@ enum SolverType {
     hill_climbing,
     simulated_annealing
 }
+
+const algorithm_details: string[] = [];
+algorithm_details[SolverType.brute_force] =
+    'Brute force tries every single coloring, starting with 1 coloring. Only good for very small ' +
+    'graphs. For example, a 10 node graph has 4^10 (approx 1 million) 4-colorings. A 20 node graph ' +
+    'has 4^20 (approx 1 trillion) 4-colorings.';
+
+algorithm_details[SolverType.hill_climbing] =
+    'Hill climbing is a local search method that for each state, picks the \'best\' neighbouring ' +
+    'state. This is a fast algorithm, but gets stuck on local maxima.';
+
+algorithm_details[SolverType.simulated_annealing] =
+    'Simulated annealing is a local search method that works by picking a random neighbour of the ' +
+    'current state. If the neighbour is better than the current state, then it is kept. If not, then ' +
+    'it is kept with a probability that decreases as the \'temperature\' of the annealer decreases. ' +
+    'This allows the algorithm to escape local maxima, but needs careful tuning of the temperature ' +
+    'profile to be useful.';
 
 export class GraphColoringView extends React.Component<any, IGraphColoringViewState> {
 
@@ -29,7 +52,9 @@ export class GraphColoringView extends React.Component<any, IGraphColoringViewSt
         this.state = {
             num_nodes: 0,
             num_colors: 0,
-            solver: SolverType.hill_climbing
+            solver: SolverType.hill_climbing,
+            algorithm_details: algorithm_details[SolverType.hill_climbing],
+            is_valid: false
         };
     }
 
@@ -48,36 +73,45 @@ export class GraphColoringView extends React.Component<any, IGraphColoringViewSt
                 </label>
 
                 <button onClick={this.findColoring}>Run solver</button>
-                <h2>Nodes: {this.state.num_nodes}, colors: {this.state.num_colors}</h2>
+                <h2>Nodes: {this.state.num_nodes},
+                    colors: {this.state.num_colors},
+                    valid: {this.state.is_valid ? 'yes' : 'no'}
+                </h2>
+                <p>{this.state.algorithm_details}</p>
                 <GraphEditor setRef={this.setEditorRef}/>
             </div>
         );
     }
 
     private onSolverChanged = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        // tslint:disable-next-line:no-console
-        // console.log(e.target.value);
-        this.setState({solver: parseInt(e.target.value, 10) as SolverType});
+        const solver_type = parseInt(e.target.value, 10) as SolverType;
+
+        this.setState({
+            solver: solver_type,
+            algorithm_details: algorithm_details[solver_type]
+        });
     }
 
     private findColoring = () => {
+        let solution: number[];
         this._graphToColor = this._graphEditor.getGraph();
+
         this.setState({
             num_nodes: this._graphToColor.num_nodes(),
         });
-        switch (this.state.solver) {
-            case SolverType.brute_force:
-                this.solveWithBruteForce();
-                break;
-            case SolverType.hill_climbing:
-                this.solveWithHillClimbing();
-                break;
-            case SolverType.simulated_annealing:
-                this.solveWithSimulatedAnnealing();
-                break;
-            default:
-                break;
+        if (this.state.solver === SolverType.brute_force) {
+            solution = this.solveWithBruteForce();
         }
+        else {
+            solution = this.solveWithLocalSearch(this.state.solver);
+        }
+
+        this.setNodeColors(solution);
+        const num_colors = new Set(solution).size;
+        this.setState({
+            num_colors,
+            is_valid: GraphColoring.isValid(this._graphToColor, solution)
+        });
     }
 
     private setEditorRef = (ref: GraphEditor) => {
@@ -95,40 +129,36 @@ export class GraphColoringView extends React.Component<any, IGraphColoringViewSt
         }
     }
 
-    private solveWithHillClimbing() {
+    private solveWithLocalSearch(solver_type: SolverType): number[] {
         const graph = this._graphToColor;
-        const initial_colors = Array.from(IterUtils.range(graph.num_nodes()))
-        const solver = new GraphColoringHillClimber(graph, initial_colors);
-        const solution = solver.get_colors();
-        this.setNodeColors(solution);
+        const initial_colors = Array.from(IterUtils.range(graph.num_nodes()));
 
-        const num_colors = new Set(solution).size;
+        const problem = new GraphColoringProblem(graph);
+        const solver = this.createSolver(solver_type, problem, initial_colors);
+        solver.solve();
 
-        this.setState({num_colors});
+        return solver.getCurrentState();
     }
 
-    private solveWithBruteForce() {
+    private createSolver(solver_type: SolverType,
+        problem: ILocalSearchProblem<number[]>,
+        initial_state: number[]): ILocalSearchAlgorithm<number[]> {
+
+        switch (solver_type) {
+            case SolverType.hill_climbing:
+                return new HillClimbingSolver(problem, initial_state);
+            case SolverType.simulated_annealing:
+                return new SimulatedAnnealing(problem, initial_state);
+            default:
+                throw new Error('unknown solver type: ' + solver_type);
+        }
+    }
+
+    private solveWithBruteForce(): number[] {
         const graph = this._graphToColor;
         const solver = new GraphColoringBruteForcer(graph);
         solver.solve();
-        const solution = solver.get_colors();
-        this.setNodeColors(solution);
-
-        const num_colors = new Set(solution).size;
-
-        this.setState({num_colors});
-    }
-
-    private solveWithSimulatedAnnealing() {
-        const graph = this._graphToColor;
-        const solver = new GraphColoringSimulatedAnnealer(graph);
-        solver.solve();
-        const solution = solver.get_colors();
-        this.setNodeColors(solution);
-
-        const num_colors = new Set(solution).size;
-
-        this.setState({num_colors});
+        return solver.get_colors();
     }
 }
 
