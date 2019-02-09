@@ -1,5 +1,5 @@
 import { IGraph } from 'src/ai_lib/structures/igraph';
-import { GraphColoring } from './graph_coloring';
+import { GraphColoring } from 'src/ai_lib/algorithms/local_search/graph_coloring';
 
 export class GraphColoringSimulatedAnnealer {
 

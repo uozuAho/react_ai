@@ -1,5 +1,5 @@
 import { IGraph } from 'src/ai_lib/structures/igraph';
-import { GraphColoring } from './graph_coloring';
+import { GraphColoring } from 'src/ai_lib/algorithms/local_search/graph_coloring';
 
 /** Basic hill climbing graph colorer. Stops when no neighbours are better than the current state.
  * potential improvements:
