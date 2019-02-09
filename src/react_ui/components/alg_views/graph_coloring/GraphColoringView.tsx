@@ -7,6 +7,8 @@ import { GraphColoringBruteForcer } from './brute_force_solver';
 import { GraphColoringProblem } from 'src/ai_lib/algorithms/local_search/graph_coloring_problem';
 import { HillClimbingSolver } from 'src/ai_lib/algorithms/local_search/hill_climbing';
 import { SimulatedAnnealing } from 'src/ai_lib/algorithms/local_search/simulated_annealing';
+import { ILocalSearchAlgorithm } from 'src/ai_lib/algorithms/local_search/local_search_algorithm';
+import { ILocalSearchProblem } from 'src/ai_lib/algorithms/local_search/local_search_problem';
 
 interface IGraphColoringViewState {
     num_nodes: number;
@@ -56,8 +58,6 @@ export class GraphColoringView extends React.Component<any, IGraphColoringViewSt
     }
 
     private onSolverChanged = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        // tslint:disable-next-line:no-console
-        // console.log(e.target.value);
         this.setState({solver: parseInt(e.target.value, 10) as SolverType});
     }
 
@@ -66,18 +66,11 @@ export class GraphColoringView extends React.Component<any, IGraphColoringViewSt
         this.setState({
             num_nodes: this._graphToColor.num_nodes(),
         });
-        switch (this.state.solver) {
-            case SolverType.brute_force:
-                this.solveWithBruteForce();
-                break;
-            case SolverType.hill_climbing:
-                this.solveWithHillClimbing();
-                break;
-            case SolverType.simulated_annealing:
-                this.solveWithSimulatedAnnealing();
-                break;
-            default:
-                break;
+        if (this.state.solver === SolverType.brute_force) {
+            this.solveWithBruteForce();
+        }
+        else {
+            this.solveWithLocalSearch(this.state.solver);
         }
     }
 
@@ -96,20 +89,33 @@ export class GraphColoringView extends React.Component<any, IGraphColoringViewSt
         }
     }
 
-    private solveWithHillClimbing() {
+    private solveWithLocalSearch(solver_type: SolverType) {
         const graph = this._graphToColor;
         const initial_colors = Array.from(IterUtils.range(graph.num_nodes()));
 
         const problem = new GraphColoringProblem(graph);
-        const solver = new HillClimbingSolver(problem, initial_colors);
+        const solver = this.createSolver(solver_type, problem, initial_colors);
         solver.solve();
 
         const solution = solver.getCurrentState();
         this.setNodeColors(solution);
 
         const num_colors = new Set(solution).size;
-
         this.setState({num_colors});
+    }
+
+    private createSolver(solver_type: SolverType,
+        problem: ILocalSearchProblem<number[]>,
+        initial_state: number[]): ILocalSearchAlgorithm<number[]> {
+
+        switch (solver_type) {
+            case SolverType.hill_climbing:
+                return new HillClimbingSolver(problem, initial_state);
+            case SolverType.simulated_annealing:
+                return new SimulatedAnnealing(problem, initial_state);
+            default:
+                throw new Error('unknown solver type: ' + solver_type);
+        }
     }
 
     private solveWithBruteForce() {
@@ -117,22 +123,6 @@ export class GraphColoringView extends React.Component<any, IGraphColoringViewSt
         const solver = new GraphColoringBruteForcer(graph);
         solver.solve();
         const solution = solver.get_colors();
-        this.setNodeColors(solution);
-
-        const num_colors = new Set(solution).size;
-
-        this.setState({num_colors});
-    }
-
-    private solveWithSimulatedAnnealing() {
-        const graph = this._graphToColor;
-        const initial_colors = Array.from(IterUtils.range(graph.num_nodes()));
-
-        const problem = new GraphColoringProblem(graph);
-        const solver = new SimulatedAnnealing(problem, initial_colors);
-
-        solver.solve();
-        const solution = solver.getCurrentState();
         this.setNodeColors(solution);
 
         const num_colors = new Set(solution).size;

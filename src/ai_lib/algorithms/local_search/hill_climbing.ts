@@ -1,13 +1,18 @@
 import { ILocalSearchProblem } from './local_search_problem';
+import { ILocalSearchAlgorithm } from './local_search_algorithm';
 
-export class HillClimbingSolver<TState> {
+export class HillClimbingSolver<TState> implements ILocalSearchAlgorithm<TState> {
 
     private _finished = false;
 
     public constructor(
         private _problem: ILocalSearchProblem<TState>,
         private _state: TState
-    ) { }
+        ) { }
+
+    public setState(state: TState): void {
+        this._state = state;
+    }
 
     public getCurrentState() : TState {
         return this._state;

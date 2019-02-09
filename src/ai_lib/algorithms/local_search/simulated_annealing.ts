@@ -1,9 +1,10 @@
 import { ILocalSearchProblem } from './local_search_problem';
+import { ILocalSearchAlgorithm } from './local_search_algorithm';
 
 const START_FINISHING_AT_MS = 5000;
 const TIMEOUT_MS = 10000;
 
-export class SimulatedAnnealing<TState> {
+export class SimulatedAnnealing<TState> implements ILocalSearchAlgorithm<TState> {
 
     private _is_finishing = false;
     private _is_finished = false;
@@ -16,6 +17,10 @@ export class SimulatedAnnealing<TState> {
         private _problem: ILocalSearchProblem<TState>,
         private _state: TState
     ) { }
+
+    public setState(state: TState): void {
+        this._state = state;
+    }
 
     public getCurrentState() : TState {
         return this._state;
