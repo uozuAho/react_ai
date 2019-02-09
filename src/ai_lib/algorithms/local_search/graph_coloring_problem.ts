@@ -4,8 +4,7 @@ import { GraphColoring } from './graph_coloring';
 
 export class GraphColoringProblem implements ILocalSearchProblem<number[]> {
 
-    constructor(private _graph: IGraph) {
-    }
+    constructor(private _graph: IGraph) {}
 
     public getAllNeighbours(state: number[]): Iterable<number[]> {
         // optimisation hack : since all neighbours will have at most one colour different
@@ -31,13 +30,21 @@ export class GraphColoringProblem implements ILocalSearchProblem<number[]> {
     }
 
     public getRandomNeighbour(state: number[]): number[] {
-        throw new Error("Method not implemented.");
+        const neighbour = state.slice();
+        const rand_idx = this.randomInt(state.length);
+        const rand_color = this.randomInt(state.length);
+        neighbour[rand_idx] = rand_color;
+        return neighbour;
     }
 
     public score(state: number[]): number {
         const num_nodes = state.length;
         const max_score = 2 * num_nodes;
         return max_score - this.inverse_score(state);
+    }
+
+    public isValid(state: number[]): boolean {
+        return GraphColoring.isValid(this._graph, state);
     }
 
     // graph coloring is easier to score inversely - less colors the better
@@ -55,5 +62,9 @@ export class GraphColoringProblem implements ILocalSearchProblem<number[]> {
 
     private num_colours(state: number[]) {
         return new Set(state).size;
+    }
+
+    private randomInt(max: number): number {
+        return Math.floor(Math.random() * Math.floor(max));
     }
 }

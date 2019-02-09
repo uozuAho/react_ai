@@ -9,4 +9,7 @@ export interface ILocalSearchProblem<TState> {
      *  compared to other states. Higher score = better.
      */
     score(state: TState): number;
+
+    /** True if the given state is a valid solution */
+    isValid(state: TState): boolean;
 }

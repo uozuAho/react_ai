@@ -4,9 +4,9 @@ import { GraphEditorNode } from '../../graph_editor/GraphEditorNode';
 import { GraphT } from 'src/ai_lib/structures/graphT';
 import { IterUtils } from 'src/libs/array/iter_utils';
 import { GraphColoringBruteForcer } from './brute_force_solver';
-import { GraphColoringSimulatedAnnealer } from './simulated_annealing_solver';
 import { GraphColoringProblem } from 'src/ai_lib/algorithms/local_search/graph_coloring_problem';
 import { HillClimbingSolver } from 'src/ai_lib/algorithms/local_search/hill_climbing';
+import { SimulatedAnnealing } from 'src/ai_lib/algorithms/local_search/simulated_annealing';
 
 interface IGraphColoringViewState {
     num_nodes: number;
@@ -126,9 +126,13 @@ export class GraphColoringView extends React.Component<any, IGraphColoringViewSt
 
     private solveWithSimulatedAnnealing() {
         const graph = this._graphToColor;
-        const solver = new GraphColoringSimulatedAnnealer(graph);
+        const initial_colors = Array.from(IterUtils.range(graph.num_nodes()));
+
+        const problem = new GraphColoringProblem(graph);
+        const solver = new SimulatedAnnealing(problem, initial_colors);
+
         solver.solve();
-        const solution = solver.get_colors();
+        const solution = solver.getCurrentState();
         this.setNodeColors(solution);
 
         const num_colors = new Set(solution).size;
