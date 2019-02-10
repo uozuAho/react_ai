@@ -1,5 +1,5 @@
 import { PandemicGameState, CityState, LoseCondition } from './game_state';
-import { IPandemicAction, ActionNames } from './game_actions';
+import { IPandemicAction, ActionNames, InfectCityAction } from './game_actions';
 import { Colour } from './pandemic_board';
 import { ArrayUtils } from '../../../src/libs/array/array_utils';
 
@@ -9,13 +9,15 @@ export class RootReducer {
         switch (action.name) {
             case ActionNames.END_TURN:
                 return onEndTurn(state, action);
+            case ActionNames.INFECT_CITY:
+                return infectCityReducer(state, action as InfectCityAction);
             default:
                 throw new Error("Unhandled action " + action.name);
         }
     }
 }
 
-function onEndTurn(state: PandemicGameState, action: IPandemicAction) {
+function onEndTurn(state: PandemicGameState, action: IPandemicAction): PandemicGameState {
     const new_state = state.clone();
 
     for (let i = 0; i < new_state.infection_rate; i++) {
@@ -31,9 +33,16 @@ function onEndTurn(state: PandemicGameState, action: IPandemicAction) {
     return new_state;
 }
 
-/** Increase a city's cube count by 1. Note: MODIFIES STATE */
-// exported for testing :(
-export function infect_city(state: PandemicGameState, city: CityState, colour?: Colour) {
+function infectCityReducer(state: PandemicGameState, action: InfectCityAction): PandemicGameState {
+    const new_state = state.clone();
+    const city = new_state.get_city(action.city);
+
+    infect_city(new_state, city);
+
+    return new_state;
+}
+
+function infect_city(state: PandemicGameState, city: CityState, colour?: Colour) {
 
     colour = colour ? colour : city.city.colour;
 

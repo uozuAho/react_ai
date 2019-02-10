@@ -1,7 +1,7 @@
 import { PandemicBoard, all_colours, Colour } from "./pandemic_board";
 import { PandemicGameState, LoseCondition } from './game_state';
-import { RootReducer, infect_city } from './game_reducers';
-import { EndTurnAction } from './game_actions';
+import { RootReducer } from './game_reducers';
+import { EndTurnAction, InfectCityAction } from './game_actions';
 import { IterUtils } from '../../../src/libs/array/iter_utils';
 
 describe('game reducers', () => {
@@ -31,6 +31,10 @@ describe('game reducers', () => {
 
         let no_cubes_state: PandemicGameState;
 
+        const infect_city = (state: PandemicGameState, city: string) => {
+            return reducer.reduce(state, new InfectCityAction(city));
+        }
+
         beforeEach(() => {
             // infect city modifies state, so use this one
             no_cubes_state = initial_game_state.clone();
@@ -38,52 +42,54 @@ describe('game reducers', () => {
         });
 
         it('fresh atlanta', () => {
-            const atlanta = no_cubes_state.get_city('Atlanta');
+            const next_state = reducer.reduce(no_cubes_state, new InfectCityAction('Atlanta'));
 
-            infect_city(no_cubes_state, atlanta);
+            const atlanta = next_state.get_city('Atlanta');
 
             expect(atlanta.num_cubes(atlanta.city.colour)).toBe(1);
         });
 
         it('atlanta outbreak', () => {
             // note that this covers a border case - miami is a neighbour of atlanta
-            const atlanta = no_cubes_state.get_city('Atlanta');
-            const atlanta_colour = atlanta.city.colour;
-            const neighbours = no_cubes_state.get_neighbours(atlanta);
+            let next_state = no_cubes_state;
 
-            infect_city(no_cubes_state, atlanta);
-            infect_city(no_cubes_state, atlanta);
-            infect_city(no_cubes_state, atlanta);
-            infect_city(no_cubes_state, atlanta);
+            next_state = infect_city(next_state, 'Atlanta');
+            next_state = infect_city(next_state, 'Atlanta');
+            next_state = infect_city(next_state, 'Atlanta');
+            next_state = infect_city(next_state, 'Atlanta');
 
-            expect(atlanta.num_cubes(atlanta_colour)).toBe(3);
+            const atlanta = next_state.get_city('Atlanta');
+            const neighbours = next_state.get_neighbours(atlanta);
+
+            expect(atlanta.num_cubes(atlanta.city.colour)).toBe(3);
             for (const neighbour of neighbours) {
-                expect(neighbour.num_cubes(atlanta_colour)).toBe(1);
+                expect(neighbour.num_cubes(atlanta.city.colour)).toBe(1);
             }
         });
 
         it('miami outbreak chain reaction', () => {
-            // note that this covers a border case - miami is a neighbour of atlanta
-            const miami = no_cubes_state.get_city('Miami');
-            const mexico = no_cubes_state.get_city('Mexico City');
-            const bogota = no_cubes_state.get_city('Bogota');
-            const atlanta = no_cubes_state.get_city('Atlanta');
-            const washington = no_cubes_state.get_city('Washington');
-            const chicago = no_cubes_state.get_city('Chicago');
-            const los_angeles = no_cubes_state.get_city('Los Angeles');
-            const lima = no_cubes_state.get_city('Lima');
-            const buenos_aires = no_cubes_state.get_city('Buenos Aires');
-            const sao_paulo = no_cubes_state.get_city('Sao Paulo');
-            const yellow: Colour = 'yellow';
+            let next_state = no_cubes_state;
 
-            for (const city of [miami, mexico, bogota]) {
-                infect_city(no_cubes_state, city);
-                infect_city(no_cubes_state, city);
-                infect_city(no_cubes_state, city);
+            for (const city of ['Miami', 'Mexico City', 'Bogota']) {
+                next_state = infect_city(next_state, city);
+                next_state = infect_city(next_state, city);
+                next_state = infect_city(next_state, city);
             }
 
             // infect miami causes chain outbreak
-            infect_city(no_cubes_state, miami);
+            next_state = infect_city(next_state, 'Miami');
+
+            const miami = next_state.get_city('Miami');
+            const mexico = next_state.get_city('Mexico City');
+            const bogota = next_state.get_city('Bogota');
+            const atlanta = next_state.get_city('Atlanta');
+            const washington = next_state.get_city('Washington');
+            const chicago = next_state.get_city('Chicago');
+            const los_angeles = next_state.get_city('Los Angeles');
+            const lima = next_state.get_city('Lima');
+            const buenos_aires = next_state.get_city('Buenos Aires');
+            const sao_paulo = next_state.get_city('Sao Paulo');
+            const yellow: Colour = 'yellow';
 
             expect(miami.num_cubes(yellow)).toBe(3);
             expect(mexico.num_cubes(yellow)).toBe(3);
@@ -99,35 +105,41 @@ describe('game reducers', () => {
         });
 
         it('should lose game when cubes run out', () => {
-            const blue_cities = Array.from(no_cubes_state.get_cities()).filter(c => c.city.colour === "blue");
+            const blue_city_names = Array.from(no_cubes_state.get_cities())
+                .filter(c => c.city.colour === "blue")
+                .map(c => c.city.name);
+
+            let next_state = no_cubes_state;
+
             // infect every blue city twice: 2 x 12 cities = 24 cubes: all blue cubes used
-            for (const city of blue_cities) {
-                infect_city(no_cubes_state, city);
-                infect_city(no_cubes_state, city);
+            for (const city of blue_city_names) {
+                next_state = infect_city(next_state, city);
+                next_state = infect_city(next_state, city);
             }
 
             // infect any blue city
-            const last_city = blue_cities[0];
-            infect_city(no_cubes_state, last_city);
+            const last_city_name = blue_city_names[0];
+            next_state = infect_city(next_state, last_city_name);
+
+            const last_city = next_state.get_city(last_city_name);
 
             // no cubes left - should have same number of cubes, and game is lost
             expect(last_city.num_cubes()).toBe(2);
-            expect(no_cubes_state.lost()).toBe(true);
-            expect(no_cubes_state.lose_condition).toBe(LoseCondition.NoMoreCubes);
+            expect(next_state.lost()).toBe(true);
+            expect(next_state.lose_condition).toBe(LoseCondition.NoMoreCubes);
         });
 
         it('should lose game at max outbreaks', () => {
-            no_cubes_state.outbreak_counter = 7;
+            let next_state = no_cubes_state;
+            next_state.outbreak_counter = 7;
 
-            const atlanta = no_cubes_state.get_city('Atlanta');
+            next_state = infect_city(next_state, 'Atlanta');
+            next_state = infect_city(next_state, 'Atlanta');
+            next_state = infect_city(next_state, 'Atlanta');
+            next_state = infect_city(next_state, 'Atlanta');
 
-            infect_city(no_cubes_state, atlanta);
-            infect_city(no_cubes_state, atlanta);
-            infect_city(no_cubes_state, atlanta);
-            infect_city(no_cubes_state, atlanta);
-
-            expect(no_cubes_state.lost()).toBe(true);
-            expect(no_cubes_state.lose_condition).toBe(LoseCondition.MaxOutbreaks);
+            expect(next_state.lost()).toBe(true);
+            expect(next_state.lose_condition).toBe(LoseCondition.MaxOutbreaks);
         });
     });
 });
