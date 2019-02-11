@@ -1,5 +1,6 @@
 import { PandemicGameState, LoseCondition } from './game_state';
-import { IPandemicAction, EndTurnAction, InfectCityAction, ActionNames } from './game_actions';
+import { IPandemicAction, EndTurnAction, InfectCityAction, ActionNames, OutbreakAction } from './game_actions';
+import { ArrayUtils } from '../../libs/array/array_utils';
 
 export type IStateChanger = (machine: PandemicStateMachine, action: IPandemicAction) => IterableIterator<PandemicGameState>;
 
@@ -8,7 +9,8 @@ export class PandemicStateMachine {
     private _state: PandemicGameState;
     private _handlers: Map<string, IStateChanger> = new Map([
         [ActionNames.END_TURN, endTurnHandler],
-        [ActionNames.INFECT_CITY, infectCityHandler]
+        [ActionNames.INFECT_CITY, infectCityHandler],
+        [ActionNames.OUTBREAK, outbreakHandler]
     ]);
 
     constructor(state: PandemicGameState) {
@@ -70,6 +72,34 @@ function* infectCityHandler(machine: PandemicStateMachine, action: InfectCityAct
         yield new_state;
     }
     else {
-        // outbreak(state, city, colour, []);
+        yield machine.emit_action(new OutbreakAction(action.city, colour, []));
+    }
+}
+
+function* outbreakHandler(machine: PandemicStateMachine, action: OutbreakAction): IterableIterator<PandemicGameState> {
+
+    const state = machine.get_state();
+    const new_state = state.clone();
+
+    new_state.outbreak_counter++;
+
+    if (new_state.outbreak_counter === 8) {
+        new_state.lose_condition = LoseCondition.MaxOutbreaks;
+    }
+
+    yield new_state;
+
+    const city = state.get_city(action.city);
+
+    for (const neighbour of state.get_neighbours(city)) {
+        if (state.lost()) { break; }
+        if (ArrayUtils.contains(action.already_outbreaked, neighbour.city.name)) { continue; }
+
+        if (neighbour.num_cubes(action.colour) === 3) {
+            const already_outbreaked = action.already_outbreaked.slice().concat([action.city]);
+            machine.emit_action(new OutbreakAction(neighbour.city.name, action.colour, already_outbreaked));
+        } else {
+            machine.emit_action(new InfectCityAction(neighbour.city.name, action.colour));
+        }
     }
 }
