@@ -25,7 +25,7 @@ export class PandemicStateMachine {
     // this is the only way to modify the state of the state machine
     public emit_action(action: IPandemicAction) {
         // tslint:disable-next-line:no-console
-        // console.log(JSON.stringify(action));
+        console.log(JSON.stringify(action));
         const handler = this.get_handler(action);
         handler(this, action);
     }
