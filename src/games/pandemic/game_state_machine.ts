@@ -24,6 +24,8 @@ export class PandemicStateMachine {
 
     // this is the only way to modify the state of the state machine
     public emit_action(action: IPandemicAction) {
+        // tslint:disable-next-line:no-console
+        // console.log(JSON.stringify(action));
         const handler = this.get_handler(action);
         handler(this, action);
     }
@@ -89,6 +91,7 @@ function outbreakHandler(machine: PandemicStateMachine, action: OutbreakAction) 
     }
 
     const city = state.get_city(action.city);
+    action.already_outbreaked.push(action.city);
 
     for (const neighbour of state.get_neighbours(city)) {
         state = machine.get_state();
@@ -97,8 +100,7 @@ function outbreakHandler(machine: PandemicStateMachine, action: OutbreakAction) 
         if (ArrayUtils.contains(action.already_outbreaked, neighbour.city.name)) { continue; }
 
         if (neighbour.num_cubes(action.colour) === 3) {
-            const already_outbreaked = action.already_outbreaked.slice().concat([action.city]);
-            machine.emit_action(new OutbreakAction(neighbour.city.name, action.colour, already_outbreaked));
+            machine.emit_action(new OutbreakAction(neighbour.city.name, action.colour, action.already_outbreaked));
         } else {
             machine.emit_action(new InfectCityAction(neighbour.city.name, action.colour));
         }

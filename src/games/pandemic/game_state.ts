@@ -53,6 +53,8 @@ export class PandemicGameState {
         new_state.infection_rate = this.infection_rate;
         new_state.unused_cubes = this.unused_cubes.clone();
         new_state.outbreak_counter = this.outbreak_counter;
+        new_state.win_condition = this.win_condition;
+        new_state.lose_condition = this.lose_condition;
 
         const new_city_states = Array.from(IterUtils.map(this.get_cities(), c => c.clone()));
         new_state._graph = PandemicGameState.init_city_graph(
