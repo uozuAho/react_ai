@@ -209,5 +209,6 @@ export enum WinCondition {
 
 export enum LoseCondition {
     NoMoreCubes,
-    MaxOutbreaks
+    MaxOutbreaks,
+    NoMoreInfectionCards
 }

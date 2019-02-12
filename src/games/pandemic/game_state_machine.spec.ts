@@ -130,6 +130,37 @@ describe('game state machine', () => {
             expect(state.lost()).toBe(true);
             expect(state.lose_condition).toBe(LoseCondition.NoMoreCubes);
         });
+
+        it('should lose game at max outbreaks', () => {
+            let state = state_machine.get_state();
+            state.outbreak_counter = 7;
+            state_machine.set_state(state);
+
+            state_machine.emit_action(new InfectCityAction('Atlanta'));
+            state_machine.emit_action(new InfectCityAction('Atlanta'));
+            state_machine.emit_action(new InfectCityAction('Atlanta'));
+            state_machine.emit_action(new InfectCityAction('Atlanta'));
+
+            state = state_machine.get_state();
+
+            expect(state.lost()).toBe(true);
+            expect(state.lose_condition).toBe(LoseCondition.MaxOutbreaks);
+        });
+
+        it('should lose when no more infection cards', () => {
+            let state = state_machine.get_state();
+            while (state.infection_deck.length > 0) {
+                state.infection_discard_pile.push(state.infection_deck.pop()!);
+            }
+            state_machine.set_state(state);
+
+            state_machine.emit_action(new EndTurnAction());
+
+            state = state_machine.get_state();
+
+            expect(state.lost()).toBe(true);
+            expect(state.lose_condition).toBe(LoseCondition.NoMoreInfectionCards);
+        });
     });
 });
 

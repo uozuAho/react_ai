@@ -47,8 +47,11 @@ export function endTurnHandler(machine: PandemicStateMachine, action: EndTurnAct
         state = machine.get_state();
 
         if (state.infection_deck.length === 0) {
-            // todo: game over man!
+            state.lose_condition = LoseCondition.NoMoreInfectionCards;
+            machine.set_state(state);
+            return;
         }
+
         const card = state.infection_deck.pop()!;
         state.infection_discard_pile.push(card);
 
