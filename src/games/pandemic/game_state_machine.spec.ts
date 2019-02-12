@@ -1,8 +1,8 @@
-import { PandemicBoard, all_colours, Colour } from "./pandemic_board";
-import { PandemicGameState, LoseCondition } from './game_state';
-import { EndTurnAction, InfectCityAction, IPandemicAction } from './game_actions';
+import { PandemicBoard, all_colours } from "./pandemic_board";
+import { PandemicGameState } from './game_state';
+import { EndTurnAction, InfectCityAction } from './game_actions';
 import { IterUtils } from '../../../src/libs/array/iter_utils';
-import { PandemicStateMachine, endTurnHandler } from './game_state_machine';
+import { PandemicStateMachine } from './game_state_machine';
 
 describe('game state machine', () => {
 
@@ -19,7 +19,8 @@ describe('game state machine', () => {
         it('end turn', () => {
             const state_machine = new PandemicStateMachine(initial_game_state);
 
-            const next_state = state_machine.emit_action(new EndTurnAction());
+            state_machine.emit_action(new EndTurnAction());
+            const next_state = state_machine.get_state();
 
             expect(next_state.infection_deck.length)
                 .toBe(initial_game_state.infection_deck.length - 2);
@@ -43,7 +44,8 @@ describe('game state machine', () => {
         });
 
         it('atlanta', () => {
-            const next_state = state_machine.emit_action(new InfectCityAction('Atlanta'));
+            state_machine.emit_action(new InfectCityAction('Atlanta'));
+            const next_state = state_machine.get_state();
 
             const atlanta = next_state.get_city('Atlanta');
 
